@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-title" content="Villa Smash">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Villa Smash Admin</title>
+<style>
+:root {
+  --bg: #f6f1ea; --card: #ffffff; --text: #22190f; --muted: #6f6355; --line: #e6dccf;
+  --brand: #c2410c; --brand-ink: #ffffff; --brand-soft: #fde7d6;
+  --ok: #15803d; --ok-soft: #dcfce7; --warn: #a16207; --warn-soft: #fef3c7; --bad: #b91c1c; --bad-soft: #fee2e2;
+  --info-soft: #e0ecff; --info: #1d4ed8;
+  --radius: 14px; --shadow: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15110d; --card: #211b15; --text: #f4ede4; --muted: #b3a593; --line: #3a3027;
+    --brand: #f97316; --brand-ink: #1a0f05; --brand-soft: #3b2412;
+    --ok: #4ade80; --ok-soft: #12321f; --warn: #fbbf24; --warn-soft: #3a2c0b; --bad: #f87171; --bad-soft: #3b1515;
+    --info-soft: #172a4d; --info: #93c5fd; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15110d; --card: #211b15; --text: #f4ede4; --muted: #b3a593; --line: #3a3027;
+  --brand: #f97316; --brand-ink: #1a0f05; --brand-soft: #3b2412;
+  --ok: #4ade80; --ok-soft: #12321f; --warn: #fbbf24; --warn-soft: #3a2c0b; --bad: #f87171; --bad-soft: #3b1515;
+  --info-soft: #172a4d; --info: #93c5fd; --shadow: none;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+body { font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust: 100%;
+  padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+header { position: sticky; top: 0; z-index: 20; background: var(--bg); display: flex; align-items: center; justify-content: space-between;
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px; border-bottom: 1px solid var(--line); }
+header h1 { font-size: 19px; margin: 0; letter-spacing: -.01em; }
+header h1 span { color: var(--brand); }
+#estado { border: 0; font: inherit; font-size: 14px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: transparent; color: var(--muted); min-height: 32px; }
+#estado[data-e="guardando"], #estado[data-e="cargando"] { background: var(--info-soft); color: var(--info); }
+#estado[data-e="guardado"] { background: var(--ok-soft); color: var(--ok); }
+#estado[data-e="error"], #estado[data-e="pendiente"] { background: var(--bad-soft); color: var(--bad); }
+main { max-width: 640px; margin: 0 auto; padding: 12px 16px 24px; }
+nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+nav.tabs button { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--muted); padding: 10px 4px 12px; min-height: 60px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px; }
+nav.tabs button svg { width: 24px; height: 24px; }
+nav.tabs button[aria-current="page"] { color: var(--brand); }
+h2 { font-size: 17px; margin: 0 0 10px; }
+h3 { font-size: 15px; margin: 14px 0 6px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; margin-bottom: 12px; border: 1px solid var(--line); }
+.ayuda { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+label.campo { display: block; font-weight: 600; font-size: 15px; margin-bottom: 12px; }
+label.campo > input, label.campo > select, label.campo > textarea, .entrada {
+  display: block; width: 100%; margin-top: 6px; font: inherit; font-size: 17px; padding: 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--text); min-height: 48px; }
+textarea { resize: vertical; min-height: 70px; }
+input[type="date"] { -webkit-appearance: none; appearance: none; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; font: inherit; font-weight: 700; font-size: 17px;
+  padding: 12px 18px; min-height: 50px; background: var(--brand); color: var(--brand-ink); cursor: pointer; }
+.btn.sec { background: var(--brand-soft); color: var(--brand); }
+.btn.peligro { background: var(--bad-soft); color: var(--bad); }
+.btn.plano { background: transparent; color: var(--brand); padding: 8px 6px; min-height: 40px; }
+.btn.ancho { width: 100%; }
+.btn:disabled { opacity: .45; }
+.fila-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.fila-btns .btn { flex: 1 1 0; }
+.prod { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.prod:first-of-type { border-top: 0; }
+.prod-info { flex: 1; min-width: 0; }
+.prod-info .nombre { font-weight: 600; overflow-wrap: anywhere; }
+.prod-info .sub { font-size: 14px; color: var(--muted); }
+.contador { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.contador button { width: 46px; height: 46px; border-radius: 12px; border: 0; background: var(--brand-soft); color: var(--brand); font-size: 26px; font-weight: 700; line-height: 1; }
+.contador input { width: 58px; height: 46px; text-align: center; font: inherit; font-size: 20px; font-weight: 700; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--text); padding: 0; }
+.contador input.con-valor { border-color: var(--brand); }
+.tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; vertical-align: 1px; }
+.tag.warn { background: var(--warn-soft); color: var(--warn); }
+.tag.bad { background: var(--bad-soft); color: var(--bad); }
+.tag.ok { background: var(--ok-soft); color: var(--ok); }
+.tag.gris { background: var(--line); color: var(--muted); }
+.aviso { border-radius: 12px; padding: 12px; font-size: 15px; margin: 10px 0; }
+.aviso.warn { background: var(--warn-soft); color: var(--warn); }
+.aviso.bad { background: var(--bad-soft); color: var(--bad); }
+.aviso.info { background: var(--info-soft); color: var(--info); }
+.aviso.ok { background: var(--ok-soft); color: var(--ok); }
+.aviso .btn { margin-top: 8px; }
+.delivery { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.delivery .pesos { flex: 1; position: relative; }
+.delivery .pesos::before, .pesos-in::before { content: "$"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 17px; }
+.delivery input, .pesos-in input { padding-left: 26px !important; margin-top: 0 !important; }
+.pesos-in { position: relative; margin-top: 6px; }
+.quitar { width: 46px; height: 48px; border: 0; border-radius: 10px; background: var(--bad-soft); color: var(--bad); font-size: 22px; flex-shrink: 0; }
+.resumen { position: sticky; bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 10; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 12px 14px; box-shadow: 0 -4px 16px rgba(0,0,0,.08); margin-top: 4px; }
+.lineas { width: 100%; border-collapse: collapse; font-size: 15px; }
+.lineas td { padding: 4px 0; vertical-align: top; }
+.lineas td:last-child { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lineas tr.total td { font-weight: 800; font-size: 18px; border-top: 1px solid var(--line); padding-top: 8px; }
+.lineas td.m { color: var(--muted); }
+.item-lista { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer; width: 100%; background: none; border-left: 0; border-right: 0; border-bottom: 0;
+  font: inherit; color: inherit; text-align: left; }
+.item-lista:first-of-type { border-top: 0; }
+.item-lista .der { margin-left: auto; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.item-lista .chev { color: var(--muted); font-size: 20px; }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--line); border-radius: 12px; padding: 3px; gap: 3px; margin-bottom: 12px; }
+.seg button { border: 0; background: none; font: inherit; font-weight: 600; font-size: 15px; padding: 9px 2px; border-radius: 9px; color: var(--muted); min-height: 40px; }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: var(--shadow); }
+.periodo { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.periodo .lbl { flex: 1; text-align: center; font-weight: 700; font-size: 17px; }
+.periodo button { width: 46px; height: 46px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-size: 22px; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+.kpi .t { font-size: 13px; color: var(--muted); font-weight: 600; }
+.kpi .v { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; margin: 2px 0; overflow-wrap: anywhere; }
+.kpi .c { font-size: 13px; color: var(--muted); }
+.kpi.grande { grid-column: 1 / -1; }
+.kpi.grande .v { font-size: 30px; }
+.sube { color: var(--ok); font-weight: 700; } .baja { color: var(--bad); font-weight: 700; }
+.rank { width: 100%; border-collapse: collapse; font-size: 15px; }
+.rank th { text-align: left; color: var(--muted); font-size: 13px; font-weight: 600; padding: 4px 0; }
+.rank td { padding: 7px 0; border-top: 1px solid var(--line); }
+.rank td.n, .rank th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 8px; }
+.vacio { text-align: center; color: var(--muted); padding: 30px 10px; }
+.modal-fondo { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+.modal { background: var(--card); color: var(--text); width: 100%; max-width: 640px; border-radius: 18px 18px 0 0; padding: 18px 16px calc(16px + env(safe-area-inset-bottom));
+  max-height: 88vh; overflow: auto; }
+.modal h2 { font-size: 19px; }
+.modal .fila-btns { margin-top: 14px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom)); background: var(--text); color: var(--bg);
+  padding: 10px 16px; border-radius: 12px; z-index: 60; font-weight: 600; max-width: calc(100% - 32px); text-align: center; }
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 600; margin-bottom: 12px; min-height: 48px; }
+.switch input { width: 26px; height: 26px; accent-color: var(--brand); }
+.volver { margin: -4px 0 8px -6px; }
+.muted { color: var(--muted); }
+.login { max-width: 420px; margin: 40px auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Villa <span>Smash</span></h1>
+  <button id="estado" type="button" data-e="" aria-live="polite"></button>
+</header>
+<main id="vista"></main>
+<nav class="tabs" id="tabs" hidden>
+  <button type="button" data-tab="cierre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Cierre</button>
+  <button type="button" data-tab="historial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button>
+  <button type="button" data-tab="reportes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Reportes</button>
+  <button type="button" data-tab="carta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Carta</button>
+</nav>
+<div id="capa"></div>
+
+<script>
+'use strict';
+// ════════════════════════════════════════════════════════════════════
+//  CONFIGURACIÓN — pega aquí la URL de la aplicación web de Apps Script
+//  (termina en /exec). Ver GUIA_INSTALACION.md, paso 5.
+// ════════════════════════════════════════════════════════════════════
+const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycby3EpskYigxZXHYCRHRPXp2qpFuEjqQ485itnpLMfzveP_-SI2cnmnLOZNr4FslWeQqPA/exec';
+
+// Antes de esta hora (Santiago), el Cierre propone la fecha del día anterior (la jornada cruza la medianoche).
+const HORA_CORTE_JORNADA = 6;
+const ZONA = 'America/Santiago';
+const CLAVE_LS = 'villasmash_clave';
+
+// ───────────────────────────── Estado ─────────────────────────────
+const S = {
+  clave: leerLS(CLAVE_LS),
+  datos: null,
+  idx: null,
+  tab: 'cierre',
+  cierre: null,          // borrador del Cierre de jornada (se conserva al cambiar de pestaña)
+  hist: { sel: null, edicion: null },
+  rep: { nivel: 'semana', clave: null },
+  carta: { form: null, inactivos: false },
+  ocupado: false,
+  pendiente: null,       // guardado que falló y espera reintento (solo mientras la app esté abierta)
+  cargadoEn: 0
+};
+
+function leerLS(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+function escribirLS(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) { /* sin almacenamiento */ } }
+
+// ───────────────────────────── Utilidades ─────────────────────────────
+const $ = (s, r = document) => r.querySelector(s);
+const h = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pesos = (n) => (n < 0 ? '−$' : '$') + Math.abs(Math.round(n || 0)).toLocaleString('es-CL');
+const ent = (v) => { const n = parseInt(String(v ?? '').replace(/\D/g, ''), 10); return isNaN(n) ? 0 : n; };
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2));
+const esperar = (ms) => new Promise(r => setTimeout(r, ms));
+
+function ahoraSantiago() {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: ZONA, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' })
+    .formatToParts(new Date()).map(x => [x.type, x.value]));
+  return { fecha: `${p.year}-${p.month}-${p.day}`, hora: Number(p.hour) };
+}
+function hoy() { return ahoraSantiago().fecha; }
+function fechaOperativa() { const a = ahoraSantiago(); return a.hora < HORA_CORTE_JORNADA ? sumarDias(a.fecha, -1) : a.fecha; }
+function dUTC(iso) { return new Date(iso + 'T12:00:00Z'); }
+function sumarDias(iso, n) { const d = dUTC(iso); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function lunesDe(iso) { const dow = (dUTC(iso).getUTCDay() + 6) % 7; return sumarDias(iso, -dow); }
+const fmtF = (opts) => new Intl.DateTimeFormat('es-CL', Object.assign({ timeZone: 'UTC' }, opts));
+function fechaLarga(iso) { return fmtF({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(dUTC(iso)); }
+function fechaCorta(iso) { return fmtF({ weekday: 'short', day: 'numeric', month: 'short' }).format(dUTC(iso)); }
+const mayus = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// ───────────────────────────── Comunicación con Apps Script ─────────────────────────────
+class ErrorApi extends Error { constructor(codigo, msg, extra) { super(msg); this.codigo = codigo; this.extra = extra; } }
+class ErrorRed extends Error {}
+
+async function api(accion, datos, requestId) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 30000);
+  let r;
+  try {
+    // text/plain evita la verificación previa (CORS) que Apps Script no responde.
+    r = await fetch(URL_SCRIPT, { method: 'POST', redirect: 'follow', signal: ctrl.signal, cache: 'no-store',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ clave: S.clave, accion, datos, requestId }) });
+  } catch (e) { throw new ErrorRed('Sin conexión o el servidor no respondió.'); }
+  finally { clearTimeout(t); }
+  let j;
+  try { j = await r.json(); } catch (e) { throw new ErrorRed('Respuesta inválida del servidor (' + r.status + ').'); }
+  if (!j.ok) throw new ErrorApi(j.error, j.mensaje, j.extra);
+  return j;
+}
+
+function ponerEstado(e, texto) {
+  const b = $('#estado');
+  b.dataset.e = e;
+  b.textContent = texto ?? ({ cargando: 'Cargando…', guardando: 'Guardando…', guardado: 'Guardado', error: 'Error, reintentar', pendiente: 'Pendiente · reintentar' }[e] || '');
+  clearTimeout(ponerEstado.t);
+  if (e === 'guardado') ponerEstado.t = setTimeout(() => { if (b.dataset.e === 'guardado') ponerEstado('', ''); }, 4000);
+}
+
+$('#estado').addEventListener('click', () => { if (S.pendiente && !S.ocupado) reintentarPendiente(); });
+
+async function cargar(silencioso) {
+  if (!silencioso) ponerEstado('cargando');
+  try {
+    const j = await api('cargar', {});
+    aplicarDatos(j.datos);
+    if (!silencioso) ponerEstado('', '');
+    return true;
+  } catch (e) {
+    if (e instanceof ErrorApi && (e.codigo === 'CLAVE_INVALIDA' || e.codigo === 'BLOQUEADO')) { salir(e.message); return false; }
+    if (!silencioso) { ponerEstado('error', 'Error al cargar'); if (!S.datos) pintarErrorCarga(e.message); }
+    return false;
+  }
+}
+
+/**
+ * Guardado con estado visible, reintento automático corto con el mismo identificador
+ * y, si no resulta, queda "Pendiente" con botón de reintento (lo escrito no se pierde).
+ */
+async function escribir(accion, datos, requestId, alExito, alErrorApi) {
+  if (S.ocupado) return;
+  S.ocupado = true; refrescarBotones();
+  ponerEstado('guardando');
+  const esperas = [1500, 4000];
+  try {
+    for (let intento = 0; ; intento++) {
+      try {
+        const j = await api(accion, datos, requestId);
+        S.pendiente = null;
+        aplicarDatos(j.datos);
+        ponerEstado('guardado');
+        alExito && alExito(j);
+        return;
+      } catch (e) {
+        if (e instanceof ErrorApi) {
+          S.pendiente = null;
+          if (e.codigo === 'CLAVE_INVALIDA' || e.codigo === 'BLOQUEADO') { salir(e.message); return; }
+          ponerEstado('error', 'No guardado');
+          if (alErrorApi && alErrorApi(e)) return;
+          mostrarModal({ titulo: 'No se guardó', cuerpo: `<p>${h(e.message)}</p><p class="ayuda">Lo escrito sigue en pantalla.</p>`, botones: [{ texto: 'Entendido' }] });
+          return;
+        }
+        if (intento < esperas.length) { ponerEstado('guardando', 'Reintentando…'); await esperar(esperas[intento]); continue; }
+        S.pendiente = { accion, datos, requestId, alExito, alErrorApi };
+        ponerEstado('pendiente');
+        mostrarModal({ titulo: 'Pendiente de guardar', cuerpo: `<p>${h(e.message)}</p><p>Lo escrito sigue en pantalla. Revisa la conexión y toca <b>Reintentar</b>.</p>
+          <p class="ayuda">Si cierras la app o se apaga el teléfono, lo pendiente se pierde y habrá que volver a ingresarlo.</p>`,
+          botones: [{ texto: 'Más tarde', clase: 'sec' }, { texto: 'Reintentar', accion: reintentarPendiente }] });
+        return;
+      }
+    }
+  } finally { S.ocupado = false; refrescarBotones(); }
+}
+function reintentarPendiente() {
+  const p = S.pendiente; if (!p) return;
+  cerrarModal();
+  escribir(p.accion, p.datos, p.requestId, p.alExito, p.alErrorApi);
+}
+function refrescarBotones() { document.querySelectorAll('[data-guarda]').forEach(b => { b.disabled = S.ocupado || b.dataset.bloq === '1'; }); }
+
+// ───────────────────────────── Datos e índices ─────────────────────────────
+function aplicarDatos(d) {
+  S.datos = d; S.cargadoEn = Date.now();
+  const prod = {}; d.productos.forEach(p => { prod[p.id] = p; });
+  const ventasPor = {}; d.ventas.forEach(v => { (ventasPor[v.fecha_jornada] = ventasPor[v.fecha_jornada] || []).push(v); });
+  const delivPor = {}; d.deliveries.forEach(x => { (delivPor[x.fecha_jornada] = delivPor[x.fecha_jornada] || []).push(x); });
+  const jornadas = d.jornadas.slice().sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const jorPor = {}; jornadas.forEach(j => { jorPor[j.fecha] = j; });
+  S.idx = { prod, ventasPor, delivPor, jornadas, jorPor };
+  pintar();
+}
+
+function precioEnFecha(pid, fecha) {
+  const propios = S.datos.precios.filter(p => p.producto_id === pid);
+  let mejor = null;
+  propios.forEach(p => { if (p.vigente_desde <= fecha && (!mejor || p.vigente_desde >= mejor.vigente_desde)) mejor = p; });
+  // Antes del primer precio registrado: el último precio del primer día (igual que en Code.gs).
+  if (!mejor) propios.forEach(p => { if (!mejor || p.vigente_desde <= mejor.vigente_desde) mejor = p; });
+  return mejor ? Number(mejor.precio) : Number(S.idx.prod[pid]?.precio_actual || 0);
+}
+
+function resumenJornada(fecha) {
+  const lineas = S.idx.ventasPor[fecha] || [];
+  const dels = S.idx.delivPor[fecha] || [];
+  const j = S.idx.jorPor[fecha] || {};
+  const lista = lineas.reduce((s, v) => s + v.subtotal, 0);
+  const deliveries = dels.reduce((s, x) => s + x.monto, 0);
+  const descuentos = Number(j.descuentos || 0);
+  const conCosto = lineas.filter(v => v.costo_unitario !== '' && v.costo_unitario !== null);
+  return {
+    fecha, jornada: j, lineas, dels, lista, deliveries, descuentos, neto: lista - descuentos + deliveries,
+    unidades: lineas.reduce((s, v) => s + v.cantidad, 0),
+    costo: conCosto.reduce((s, v) => s + v.cantidad * Number(v.costo_unitario), 0),
+    sinCosto: lineas.filter(v => !conCosto.includes(v)).map(v => v.producto_id),
+    precio0: lineas.filter(v => !v.precio_unitario).map(v => v.producto_id)
+  };
+}
+const nombreProd = (pid, respaldo) => S.idx.prod[pid]?.nombre || respaldo || '(producto eliminado)';
+
+// ───────────────────────────── Modal y aviso breve ─────────────────────────────
+function mostrarModal({ titulo, cuerpo, botones }) {
+  const capa = $('#capa');
+  capa.innerHTML = `<div class="modal-fondo"><div class="modal" role="dialog" aria-modal="true" aria-label="${h(titulo)}"><h2>${h(titulo)}</h2>${cuerpo}
+    <div class="fila-btns">${(botones || []).map((b, i) => `<button type="button" class="btn ${b.clase || ''}" data-mb="${i}">${h(b.texto)}</button>`).join('')}</div></div></div>`;
+  capa.querySelectorAll('[data-mb]').forEach(el => el.addEventListener('click', () => {
+    const b = botones[Number(el.dataset.mb)];
+    cerrarModal();
+    b.accion && b.accion();
+  }));
+  $('.modal-fondo', capa).addEventListener('click', (e) => { if (e.target.classList.contains('modal-fondo')) cerrarModal(); });
+}
+function cerrarModal() { $('#capa').innerHTML = ''; }
+function aviso(msg) {
+  document.querySelectorAll('.toast').forEach(x => x.remove());
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+
+// ───────────────────────────── Navegación ─────────────────────────────
+$('#tabs').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  if (S.tab === b.dataset.tab) { // segundo toque: volver al inicio de la pestaña
+    if (S.tab === 'historial' && !S.hist.edicion) S.hist.sel = null;
+    if (S.tab === 'carta') S.carta.form = null;
+  }
+  S.tab = b.dataset.tab; pintar(); window.scrollTo(0, 0);
+});
+
+function pintar() {
+  const v = $('#vista');
+  if (URL_SCRIPT.indexOf('http') !== 0) {
+    v.innerHTML = `<div class="card login"><h2>Falta configurar</h2><p>Pega la URL de Apps Script en <code>URL_SCRIPT</code> dentro de <code>index.html</code> (ver la guía de instalación).</p></div>`;
+    return;
+  }
+  if (!S.clave) { $('#tabs').hidden = true; return pintarLogin(); }
+  $('#tabs').hidden = false;
+  document.querySelectorAll('#tabs [data-tab]').forEach(b => b.setAttribute('aria-current', b.dataset.tab === S.tab ? 'page' : 'false'));
+  if (!S.datos) { v.innerHTML = `<div class="vacio">Cargando datos…</div>`; return; }
+  ({ cierre: pintarCierre, historial: pintarHistorial, reportes: pintarReportes, carta: pintarCarta })[S.tab]();
+  refrescarBotones();
+}
+
+function pintarErrorCarga(msg) {
+  $('#vista').innerHTML = `<div class="card"><h2>No se pudieron cargar los datos</h2><p>${h(msg)}</p>
+    <button type="button" class="btn ancho" id="reCargar">Reintentar</button></div>`;
+  $('#reCargar').onclick = () => cargar();
+}
+
+// ───────────────────────────── Acceso ─────────────────────────────
+function pintarLogin(msg) {
+  $('#vista').innerHTML = `<form class="card login" id="fLogin" autocomplete="on">
+    <h2>Entrar</h2>
+    <p class="ayuda">Ingresa la clave de Villa Smash Admin. Se recuerda en este teléfono; si Safari la olvida, se vuelve a ingresar.</p>
+    ${msg ? `<div class="aviso bad">${h(msg)}</div>` : ''}
+    <input type="text" name="username" value="villasmash" autocomplete="username" hidden>
+    <label class="campo">Clave<input type="password" id="inClave" autocomplete="current-password" required></label>
+    <button class="btn ancho" type="submit" id="btnEntrar">Entrar</button>
+  </form>`;
+  $('#fLogin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const c = $('#inClave').value.trim(); if (!c) return;
+    $('#btnEntrar').disabled = true;
+    S.clave = c;
+    ponerEstado('cargando');
+    try {
+      const j = await api('cargar', {});
+      escribirLS(CLAVE_LS, c);
+      ponerEstado('', '');
+      aplicarDatos(j.datos);
+    } catch (err) {
+      S.clave = '';
+      ponerEstado('error', 'Error');
+      pintarLogin(err.message);
+    }
+  });
+}
+function salir(msg) {
+  S.clave = ''; S.datos = null; escribirLS(CLAVE_LS, '');
+  $('#tabs').hidden = true; pintarLogin(msg);
+}
+
+// ───────────────────────────── Editor de jornada (Cierre y edición) ─────────────────────────────
+function borradorNuevo() {
+  return { modo: 'nueva', fecha: fechaOperativa(), cant: {}, dels: [], descuentos: '', nota: '', reqId: null, ultimoEnvio: null };
+}
+function borradorDesde(fecha) {
+  const r = resumenJornada(fecha);
+  const cant = {}, guardado = {};
+  r.lineas.forEach(v => { cant[v.producto_id] = String(v.cantidad); guardado[v.producto_id] = v; });
+  return { modo: 'editar', fecha, cant, guardado, dels: r.dels.map(x => ({ k: uuid(), monto: String(x.monto) })),
+    descuentos: r.descuentos ? String(r.descuentos) : '', nota: r.jornada.nota || '', reqId: null, ultimoEnvio: null };
+}
+
+/** Productos que se muestran en el editor, con el precio que se usaría. */
+function productosEditor(b) {
+  const lista = [];
+  S.datos.productos.forEach(p => {
+    const guardado = b.guardado && b.guardado[p.id];
+    if (!p.activo && !guardado) return;
+    lista.push({ id: p.id, nombre: guardado ? guardado.nombre_producto : p.nombre, categoria: p['categoría'] || '', inactivo: !p.activo,
+      precio: guardado ? guardado.precio_unitario : precioEnFecha(p.id, b.fecha), precioGuardado: !!guardado });
+  });
+  // Productos de la jornada que ya no existen en la Carta (borrados a mano en la planilla)
+  if (b.guardado) Object.values(b.guardado).forEach(v => {
+    if (!S.idx.prod[v.producto_id]) lista.push({ id: v.producto_id, nombre: v.nombre_producto, categoria: '', inactivo: true, precio: v.precio_unitario, precioGuardado: true });
+  });
+  return lista;
+}
+
+function agruparPorCategoria(lista) {
+  const grupos = {};
+  lista.forEach(p => { const c = p.categoria || 'Sin categoría'; (grupos[c] = grupos[c] || []).push(p); });
+  return Object.keys(grupos).sort((a, b) => (a === 'Sin categoría') - (b === 'Sin categoría') || a.localeCompare(b, 'es'))
+    .map(c => [c, grupos[c].sort((x, y) => x.nombre.localeCompare(y.nombre, 'es'))]);
+}
+
+function calcularBorrador(b) {
+  const prods = productosEditor(b);
+  let lista = 0, unidades = 0; const precio0 = [], items = [];
+  prods.forEach(p => {
+    const c = ent(b.cant[p.id]);
+    if (c > 0) { lista += c * p.precio; unidades += c; items.push({ p, c }); if (!p.precio) precio0.push(p.nombre); }
+  });
+  const dels = b.dels.map(x => ent(x.monto)).filter(m => m > 0);
+  const deliveries = dels.reduce((s, m) => s + m, 0);
+  const descuentos = ent(b.descuentos);
+  return { prods, items, lista, unidades, precio0, dels, deliveries, descuentos, neto: lista - descuentos + deliveries };
+}
+
+function editorHTML(b) {
+  const prods = productosEditor(b);
+  const existe = b.modo === 'nueva' && S.idx.jorPor[b.fecha];
+  const futura = b.fecha > hoy();
+  let html = '';
+  if (b.modo === 'editar') {
+    html += `<button type="button" class="btn plano volver" data-acc="cancelarEdicion">‹ Cancelar edición</button>
+      <div class="card"><h2>Editar jornada</h2><p style="margin:0">${h(mayus(fechaLarga(b.fecha)))}</p>
+      <p class="ayuda">Al guardar se reemplaza lo registrado ese día. Los productos que ya estaban conservan el precio guardado; los que agregues toman el precio vigente en esa fecha.</p></div>`;
+  } else {
+    html += `<div class="card"><label class="campo" style="margin:0">Fecha de la jornada
+      <input type="date" id="edFecha" value="${h(b.fecha)}" max="${h(hoy())}"></label>
+      <p class="ayuda">Si cierras pasada la medianoche, la jornada va a la fecha en que abrió.</p>
+      ${existe ? `<div class="aviso warn"><b>Ya hay una jornada guardada el ${h(fechaCorta(b.fecha))}.</b> Para corregirla, edítala desde el Historial.
+        <br><button type="button" class="btn sec" data-acc="irEditar">Editar esa jornada</button></div>` : ''}
+      ${futura ? `<div class="aviso bad">La fecha está en el futuro.</div>` : ''}</div>`;
+  }
+  html += `<div class="card"><h2>Productos vendidos</h2>`;
+  if (!prods.length) html += `<p class="muted">No hay productos activos en la Carta. <button type="button" class="btn plano" data-acc="irCarta">Ir a la Carta</button></p>`;
+  agruparPorCategoria(prods).forEach(([cat, ps]) => {
+    html += `<h3>${h(cat)}</h3>`;
+    ps.forEach(p => {
+      const v = b.cant[p.id] || '';
+      html += `<div class="prod"><div class="prod-info"><div class="nombre">${h(p.nombre)} ${p.inactivo ? '<span class="tag gris">inactivo</span>' : ''}</div>
+        <div class="sub">${p.precio ? pesos(p.precio) : '<span class="tag warn">pendiente de configurar</span>'}${p.precioGuardado && b.modo === 'editar' ? ' · precio guardado' : ''}</div></div>
+        <div class="contador"><button type="button" data-menos="${h(p.id)}" aria-label="Restar ${h(p.nombre)}">−</button>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" data-cant="${h(p.id)}" value="${h(v)}" placeholder="0" aria-label="Cantidad de ${h(p.nombre)}" class="${ent(v) ? 'con-valor' : ''}">
+        <button type="button" data-mas="${h(p.id)}" aria-label="Sumar ${h(p.nombre)}">+</button></div></div>`;
+    });
+  });
+  html += `</div><div class="card"><h2>Deliveries <span class="muted" style="font-weight:400;font-size:14px">(opcional)</span></h2>
+    <p class="ayuda" style="margin:-4px 0 10px">Un monto por cada pedido con delivery. Se suma como ingreso.</p>`;
+  b.dels.forEach((x, i) => {
+    html += `<div class="delivery"><div class="pesos"><input class="entrada" type="text" inputmode="numeric" pattern="[0-9]*" data-del="${h(x.k)}" value="${h(x.monto)}" placeholder="Monto" aria-label="Monto delivery ${i + 1}"></div>
+      <button type="button" class="quitar" data-quitardel="${h(x.k)}" aria-label="Quitar delivery">×</button></div>`;
+  });
+  html += `<button type="button" class="btn sec ancho" data-acc="agregarDel">+ Agregar delivery</button></div>
+    <div class="card"><label class="campo">Descuentos del día <span class="muted" style="font-weight:400">(opcional, monto total)</span>
+      <div class="pesos-in"><input class="entrada" type="text" inputmode="numeric" pattern="[0-9]*" id="edDesc" value="${h(b.descuentos)}" placeholder="0"></div></label>
+    <label class="campo" style="margin:0">Nota <span class="muted" style="font-weight:400">(opcional)</span><textarea id="edNota" maxlength="500">${h(b.nota)}</textarea></label></div>
+    <div class="resumen" id="edResumen"></div>`;
+  return html;
+}
+
+function resumenHTML(b) {
+  const c = calcularBorrador(b);
+  const bloqueado = (b.modo === 'nueva' && S.idx.jorPor[b.fecha]) || b.fecha > hoy();
+  return `<table class="lineas">
+    <tr><td>Productos <span class="muted">(${c.unidades} u.)</span></td><td>${pesos(c.lista)}</td></tr>
+    <tr><td>Deliveries <span class="muted">(${c.dels.length})</span></td><td>+ ${pesos(c.deliveries)}</td></tr>
+    <tr><td>Descuentos</td><td>− ${pesos(c.descuentos)}</td></tr>
+    <tr class="total"><td>Ingreso neto</td><td>${pesos(c.neto)}</td></tr></table>
+    ${c.precio0.length ? `<div class="aviso warn" style="margin:8px 0 0">Precio pendiente de configurar: ${h(c.precio0.join(', '))}. Se guardará a $0.</div>` : ''}
+    <button type="button" class="btn ancho" style="margin-top:10px" data-acc="revisar" data-guarda data-bloq="${!c.items.length || bloqueado ? '1' : '0'}">
+      ${b.modo === 'editar' ? 'Revisar y guardar cambios' : 'Revisar y guardar jornada'}</button>`;
+}
+
+function montarEditor(b) {
+  const v = $('#vista');
+  v.innerHTML = editorHTML(b);
+  const res = $('#edResumen');
+  const refrescarTodo = () => { res.innerHTML = resumenHTML(b); refrescarBotones(); };
+  refrescarTodo();
+
+  v.oninput = (e) => {
+    const t = e.target;
+    if (t.dataset.cant !== undefined) {
+      const limpio = t.value.replace(/\D/g, '').slice(0, 5); if (limpio !== t.value) t.value = limpio;
+      b.cant[t.dataset.cant] = limpio; t.classList.toggle('con-valor', ent(limpio) > 0);
+    } else if (t.dataset.del !== undefined) {
+      const limpio = t.value.replace(/\D/g, '').slice(0, 8); if (limpio !== t.value) t.value = limpio;
+      const x = b.dels.find(d => d.k === t.dataset.del); if (x) x.monto = limpio;
+    } else if (t.id === 'edDesc') {
+      const limpio = t.value.replace(/\D/g, '').slice(0, 9); if (limpio !== t.value) t.value = limpio; b.descuentos = limpio;
+    } else if (t.id === 'edNota') { b.nota = t.value; return; }
+    else return;
+    refrescarTodo();
+  };
+  v.onchange = (e) => {
+    if (e.target.id === 'edFecha') {
+      const f = e.target.value;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(f)) { b.fecha = f; montarEditor(b); }
+    }
+  };
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.mas || t.dataset.menos) {
+      const id = t.dataset.mas || t.dataset.menos;
+      const n = Math.max(0, ent(b.cant[id]) + (t.dataset.mas ? 1 : -1));
+      b.cant[id] = n ? String(n) : '';
+      const inp = v.querySelector(`[data-cant="${CSS.escape(id)}"]`); inp.value = b.cant[id]; inp.classList.toggle('con-valor', n > 0);
+      refrescarTodo(); return;
+    }
+    if (t.dataset.quitardel) { b.dels = b.dels.filter(d => d.k !== t.dataset.quitardel); montarEditor(b); return; }
+    switch (t.dataset.acc) {
+      case 'agregarDel': b.dels.push({ k: uuid(), monto: '' }); montarEditor(b); { const ins = v.querySelectorAll('[data-del]'); ins[ins.length - 1].focus(); } break;
+      case 'irEditar': S.tab = 'historial'; S.hist.sel = b.fecha; S.hist.edicion = borradorDesde(b.fecha); pintar(); window.scrollTo(0, 0); break;
+      case 'irCarta': S.tab = 'carta'; pintar(); break;
+      case 'cancelarEdicion': S.hist.edicion = null; pintar(); window.scrollTo(0, 0); break;
+      case 'revisar': confirmarGuardado(b); break;
+    }
+  };
+}
+
+function confirmarGuardado(b) {
+  const c = calcularBorrador(b);
+  if (!c.items.length) return;
+  const filas = c.items.map(({ p, c: n }) => `<tr><td>${n} × ${h(p.nombre)}</td><td>${pesos(n * p.precio)}</td></tr>`).join('');
+  mostrarModal({
+    titulo: b.modo === 'editar' ? 'Guardar cambios' : 'Guardar jornada',
+    cuerpo: `<p style="margin-top:0"><b>${h(mayus(fechaLarga(b.fecha)))}</b></p>
+      <table class="lineas">${filas}
+      <tr><td class="m">Productos</td><td class="m">${pesos(c.lista)}</td></tr>
+      <tr><td class="m">Deliveries (${c.dels.length})</td><td class="m">+ ${pesos(c.deliveries)}</td></tr>
+      <tr><td class="m">Descuentos</td><td class="m">− ${pesos(c.descuentos)}</td></tr>
+      <tr class="total"><td>Ingreso neto</td><td>${pesos(c.neto)}</td></tr></table>
+      ${c.neto < 0 ? '<div class="aviso bad">El ingreso neto es negativo. Revisa los descuentos.</div>' : ''}
+      ${b.modo === 'editar' ? '<p class="ayuda">Esto reemplaza lo guardado ese día.</p>' : ''}`,
+    botones: [{ texto: 'Volver', clase: 'sec' }, { texto: 'Confirmar y guardar', accion: () => enviarJornada(b) }]
+  });
+}
+
+function enviarJornada(b) {
+  const c = calcularBorrador(b);
+  const datos = { modo: b.modo, fecha: b.fecha, items: c.items.map(({ p, c: n }) => ({ producto_id: p.id, cantidad: n })),
+    deliveries: c.dels, descuentos: c.descuentos, nota: b.nota.trim() };
+  const firma = JSON.stringify(datos);
+  // Mismo contenido = mismo identificador: un reenvío no duplica ni suma.
+  if (!b.reqId || b.ultimoEnvio !== firma) { b.reqId = uuid(); b.ultimoEnvio = firma; }
+  const tabInicio = S.tab;
+  escribir('guardarJornada', datos, b.reqId, () => {
+    aviso(b.modo === 'nueva' ? 'Jornada del ' + fechaCorta(b.fecha) + ' guardada' : 'Cambios guardados');
+    if (b.modo === 'nueva') S.cierre = null; else S.hist.edicion = null;
+    // Se muestra el detalle guardado, salvo que mientras tanto se haya cambiado de pestaña.
+    if (S.tab === tabInicio) { S.tab = 'historial'; S.hist.edicion = null; S.hist.sel = b.fecha; window.scrollTo(0, 0); }
+    pintar();
+  }, (e) => {
+    if (e.codigo === 'JORNADA_EXISTE') {
+      mostrarModal({ titulo: 'Esa fecha ya tiene jornada', cuerpo: `<p>${h(e.message)}</p><p class="ayuda">Lo escrito sigue en el Cierre.</p>`,
+        botones: [{ texto: 'Volver', clase: 'sec' }, { texto: 'Ir a editarla', accion: () => { S.tab = 'historial'; S.hist.sel = b.fecha; S.hist.edicion = borradorDesde(b.fecha); pintar(); } }] });
+      return true;
+    }
+    return false;
+  });
+}
+
+// ───────────────────────────── Cierre de jornada ─────────────────────────────
+function pintarCierre() {
+  if (!S.cierre) S.cierre = borradorNuevo();
+  montarEditor(S.cierre);
+}
+
+// ───────────────────────────── Historial ─────────────────────────────
+function pintarHistorial() {
+  const v = $('#vista');
+  if (S.hist.edicion) return montarEditor(S.hist.edicion);
+  v.oninput = v.onchange = null;
+  if (S.hist.sel && S.idx.jorPor[S.hist.sel]) return pintarDetalle(S.hist.sel);
+  S.hist.sel = null;
+  const js = S.idx.jornadas;
+  if (!js.length) { v.innerHTML = `<div class="card vacio">Aún no hay jornadas guardadas.<br><br><button type="button" class="btn" data-acc="irCierre">Ir al Cierre de jornada</button></div>`; }
+  else {
+    let html = `<div class="card"><h2>Jornadas</h2>`;
+    let mes = '';
+    js.forEach(j => {
+      const r = resumenJornada(j.fecha);
+      const m = mayus(fmtF({ month: 'long', year: 'numeric' }).format(dUTC(j.fecha)));
+      if (m !== mes) { html += `<h3>${h(m)}</h3>`; mes = m; }
+      html += `<button type="button" class="item-lista" data-ver="${h(j.fecha)}"><div><div style="font-weight:600">${h(mayus(fechaCorta(j.fecha)))}</div>
+        <div class="ayuda" style="margin:0">${r.unidades} u.${r.dels.length ? ` · ${r.dels.length} delivery` : ''}${j.ultima_edicion ? ' · editada' : ''}</div></div>
+        <div class="der">${pesos(r.neto)}</div><span class="chev">›</span></button>`;
+    });
+    v.innerHTML = html + `</div>`;
+  }
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.ver) { S.hist.sel = t.dataset.ver; pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.acc === 'irCierre') { S.tab = 'cierre'; pintar(); }
+  };
+}
+
+function lineaCosto(r) {
+  if (!r.lineas.length) return '';
+  if (r.sinCosto.length === r.lineas.length) {
+    return `<div class="aviso info">Costo y margen: aún no calculables (${r.sinCosto.length} ${r.sinCosto.length === 1 ? 'producto' : 'productos'} sin costo). Se habilitan al cargar recetas e insumos.</div>`;
+  }
+  const margen = r.neto - r.costo;
+  return `<table class="lineas" style="margin-top:8px"><tr><td>Costo de lo vendido ${r.sinCosto.length ? `<span class="tag warn">incompleto</span>` : ''}</td><td>${pesos(r.costo)}</td></tr>
+    <tr><td>Margen ${r.sinCosto.length ? `<span class="tag warn">incompleto</span>` : ''}</td><td>${pesos(margen)}</td></tr></table>
+    ${r.sinCosto.length ? `<p class="ayuda">${r.sinCosto.length} productos sin costo.</p>` : ''}`;
+}
+
+function pintarDetalle(fecha) {
+  const v = $('#vista');
+  const r = resumenJornada(fecha);
+  const filas = r.lineas.slice().sort((a, b) => b.cantidad - a.cantidad).map(x =>
+    `<tr><td>${x.cantidad} × ${h(x.nombre_producto)} <span class="muted">(${pesos(x.precio_unitario)})</span></td><td>${pesos(x.subtotal)}</td></tr>`).join('');
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="volver">‹ Historial</button>
+    <div class="card"><h2>${h(mayus(fechaLarga(fecha)))}</h2>
+      <table class="lineas">${filas}
+        <tr><td class="m">Ventas a precio de lista</td><td class="m">${pesos(r.lista)}</td></tr>
+        <tr><td class="m">Deliveries (${r.dels.length})${r.dels.length ? ': ' + r.dels.map(x => pesos(x.monto)).join(', ') : ''}</td><td class="m">+ ${pesos(r.deliveries)}</td></tr>
+        <tr><td class="m">Descuentos</td><td class="m">− ${pesos(r.descuentos)}</td></tr>
+        <tr class="total"><td>Ingreso neto</td><td>${pesos(r.neto)}</td></tr></table>
+      ${lineaCosto(r)}
+      ${r.jornada.nota ? `<p><b>Nota:</b> ${h(r.jornada.nota)}</p>` : ''}
+      <p class="ayuda">Guardada: ${h(r.jornada.creada || '—')}${r.jornada.ultima_edicion ? ` · Última edición: ${h(r.jornada.ultima_edicion)}` : ''}</p>
+    </div>
+    <div class="fila-btns"><button type="button" class="btn" data-acc="editar" data-guarda>Editar</button><button type="button" class="btn peligro" data-acc="eliminar" data-guarda>Eliminar jornada</button></div>`;
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.acc === 'volver') { S.hist.sel = null; pintar(); }
+    if (t.dataset.acc === 'editar') { S.hist.edicion = borradorDesde(fecha); pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.acc === 'eliminar') mostrarModal({
+      titulo: 'Eliminar jornada', cuerpo: `<p>Se eliminará la jornada del <b>${h(fechaLarga(fecha))}</b> (${r.unidades} unidades, ingreso neto ${pesos(r.neto)}), con sus deliveries.</p>
+        <p class="ayuda">Si fue un error, se puede recuperar desde el historial de versiones de la planilla en Google Sheets.</p>`,
+      botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: 'Eliminar', clase: 'peligro', accion: () =>
+        escribir('eliminarJornada', { fecha }, uuid(), () => { S.hist.sel = null; aviso('Jornada eliminada'); pintar(); }) }]
+    });
+  };
+}
+
+// ───────────────────────────── Reportes de ventas ─────────────────────────────
+const NIVELES = { jornada: 'Jornada', semana: 'Semana', mes: 'Mes', anio: 'Año' };
+function clavePeriodo(fecha, nivel) {
+  return nivel === 'jornada' ? fecha : nivel === 'semana' ? lunesDe(fecha) : nivel === 'mes' ? fecha.slice(0, 7) : fecha.slice(0, 4);
+}
+function claveAnterior(clave, nivel) {
+  if (nivel === 'jornada') { const f = S.idx.jornadas.find(j => j.fecha < clave); return f ? f.fecha : null; }
+  if (nivel === 'semana') return sumarDias(clave, -7);
+  if (nivel === 'mes') { let [y, m] = clave.split('-').map(Number); m--; if (!m) { m = 12; y--; } return `${y}-${String(m).padStart(2, '0')}`; }
+  return String(Number(clave) - 1);
+}
+function etiquetaPeriodo(clave, nivel) {
+  if (!clave) return '';
+  if (nivel === 'jornada') return mayus(fechaCorta(clave)) + ' ' + clave.slice(0, 4);
+  if (nivel === 'semana') {
+    const fin = sumarDias(clave, 6);
+    const ini = fmtF({ day: 'numeric', month: clave.slice(5, 7) === fin.slice(5, 7) ? undefined : 'short' }).format(dUTC(clave));
+    return `Semana ${ini}–${fmtF({ day: 'numeric', month: 'short', year: 'numeric' }).format(dUTC(fin))}`;
+  }
+  if (nivel === 'mes') return mayus(fmtF({ month: 'long', year: 'numeric' }).format(dUTC(clave + '-15')));
+  return clave;
+}
+function agregarPeriodo(clave, nivel) {
+  const fechas = S.idx.jornadas.filter(j => clavePeriodo(j.fecha, nivel) === clave).map(j => j.fecha);
+  const t = { fechas, jornadas: fechas.length, lista: 0, descuentos: 0, deliveries: 0, nDel: 0, neto: 0, costo: 0, unidades: 0, prods: {}, sinCosto: new Set(), precio0: new Set(), lineas: 0, lineasSinCosto: 0 };
+  fechas.forEach(f => {
+    const r = resumenJornada(f);
+    t.lista += r.lista; t.descuentos += r.descuentos; t.deliveries += r.deliveries; t.nDel += r.dels.length; t.neto += r.neto; t.costo += r.costo; t.unidades += r.unidades;
+    r.sinCosto.forEach(p => t.sinCosto.add(p)); r.precio0.forEach(p => t.precio0.add(p));
+    t.lineas += r.lineas.length; t.lineasSinCosto += r.sinCosto.length;
+    r.lineas.forEach(v => {
+      const p = t.prods[v.producto_id] = t.prods[v.producto_id] || { id: v.producto_id, nombre: nombreProd(v.producto_id, v.nombre_producto), unidades: 0, monto: 0, costo: 0, sinCosto: false };
+      p.unidades += v.cantidad; p.monto += v.subtotal;
+      if (v.costo_unitario === '' || v.costo_unitario === null) p.sinCosto = true; else p.costo += v.cantidad * Number(v.costo_unitario);
+    });
+  });
+  t.promedio = t.jornadas ? t.neto / t.jornadas : 0;
+  return t;
+}
+function variacion(actual, anterior) {
+  if (!anterior) return '';
+  const p = Math.round((actual - anterior) / Math.abs(anterior) * 100);
+  return p === 0 ? '<span class="muted">= 0%</span>' : `<span class="${p > 0 ? 'sube' : 'baja'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`;
+}
+const etq = (estado, txt) => `<span class="tag ${estado === 'completo' ? 'ok' : estado === 'estimado' ? 'warn' : 'bad'}">${h(txt || estado)}</span>`;
+
+function pintarReportes() {
+  const v = $('#vista');
+  v.oninput = v.onchange = null;
+  const nivel = S.rep.nivel;
+  const claves = [...new Set(S.idx.jornadas.map(j => clavePeriodo(j.fecha, nivel)))]; // de más reciente a más antiguo
+  if (!claves.includes(S.rep.clave)) S.rep.clave = claves[0] || null;
+  const clave = S.rep.clave;
+  const pos = claves.indexOf(clave);
+  let html = `<div class="seg" role="group" aria-label="Nivel">${Object.entries(NIVELES).map(([k, t]) => `<button data-nivel="${k}" aria-pressed="${k === nivel}">${t}</button>`).join('')}</div>`;
+  if (!clave) { v.innerHTML = html + `<div class="card vacio">Aún no hay jornadas para reportar.</div>`; return enlazarReportes(claves); }
+  html += `<div class="periodo"><button data-ir="1" ${pos >= claves.length - 1 ? 'disabled' : ''} aria-label="Período anterior">‹</button>
+    <div class="lbl">${h(etiquetaPeriodo(clave, nivel))}</div><button data-ir="-1" ${pos <= 0 ? 'disabled' : ''} aria-label="Período siguiente">›</button></div>`;
+
+  const t = agregarPeriodo(clave, nivel);
+  const ant = claveAnterior(clave, nivel);
+  const ta = ant ? agregarPeriodo(ant, nivel) : null;
+  const nomAnt = ant ? etiquetaPeriodo(ant, nivel) : '';
+  const comp = (act, prev) => !ta ? 'Sin período anterior' : !ta.jornadas ? `${h(nomAnt)}: sin jornadas` : `${variacion(act, prev)} vs ${h(nomAnt)} (${prev.toLocaleString('es-CL')})`;
+  const compP = (act, prev) => !ta ? 'Sin período anterior' : !ta.jornadas ? `${h(nomAnt)}: sin jornadas` : `${variacion(act, prev)} vs ${h(nomAnt)} (${pesos(prev)})`;
+
+  const estVentas = t.precio0.size ? etq('incompleto', `${t.precio0.size} con precio 0`) : etq('completo');
+  html += `<div class="kpis">
+    <div class="kpi grande"><div class="t">Ingreso neto ${estVentas}</div><div class="v">${pesos(t.neto)}</div><div class="c">${compP(t.neto, ta?.neto)}</div></div>
+    ${nivel !== 'jornada' ? `<div class="kpi"><div class="t">Jornadas</div><div class="v">${t.jornadas}</div><div class="c">${comp(t.jornadas, ta?.jornadas)}</div></div>
+    <div class="kpi"><div class="t">Promedio por jornada</div><div class="v">${pesos(t.promedio)}</div><div class="c">${compP(t.promedio, ta?.promedio)}</div></div>` : ''}
+    <div class="kpi"><div class="t">Unidades vendidas</div><div class="v">${t.unidades.toLocaleString('es-CL')}</div><div class="c">${comp(t.unidades, ta?.unidades)}</div></div>
+    <div class="kpi"><div class="t">Deliveries</div><div class="v">${pesos(t.deliveries)}</div><div class="c">${t.nDel} ${t.nDel === 1 ? 'pedido' : 'pedidos'}</div></div>
+  </div>
+  <div class="card"><h2>Detalle del ingreso</h2><table class="lineas">
+    <tr><td>Ventas a precio de lista ${estVentas}</td><td>${pesos(t.lista)}</td></tr>
+    <tr><td>Descuentos</td><td>− ${pesos(t.descuentos)}</td></tr>
+    <tr><td>Deliveries</td><td>+ ${pesos(t.deliveries)}</td></tr>
+    <tr class="total"><td>Ingreso neto</td><td>${pesos(t.neto)}</td></tr></table>
+    ${t.precio0.size ? `<p class="ayuda">${t.precio0.size} ${t.precio0.size === 1 ? 'producto se vendió' : 'productos se vendieron'} con precio pendiente de configurar ($0).</p>` : ''}
+  </div>`;
+
+  // Costo, margen y ganancia: indican qué falta (recetas = fase 5, gastos = fase 4).
+  const sinCosto = t.sinCosto.size;
+  const margen = t.neto - t.costo;
+  const estCosto = t.lineasSinCosto === 0 ? etq('completo') : t.lineasSinCosto === t.lineas ? etq('incompleto', 'costo incompleto') : etq('incompleto');
+  html += `<div class="card"><h2>Costo y ganancia</h2>
+    ${t.lineasSinCosto === t.lineas
+      ? `<table class="lineas"><tr><td>Costo de lo vendido ${estCosto}</td><td class="m">—</td></tr><tr><td>Margen ${estCosto}</td><td class="m">—</td></tr></table>
+         <p class="ayuda">${sinCosto} ${sinCosto === 1 ? 'producto' : 'productos'} sin costo. El costo se calculará cuando se carguen insumos y recetas.</p>`
+      : `<table class="lineas"><tr><td>Costo de lo vendido ${estCosto}</td><td>${pesos(t.costo)}</td></tr><tr><td>Margen ${estCosto}</td><td>${pesos(margen)}</td></tr></table>
+         ${sinCosto ? `<p class="ayuda">${sinCosto} productos sin costo: el costo y el margen están incompletos.</p>` : ''}`}
+    <table class="lineas" style="margin-top:6px"><tr><td>Ganancia del período ${etq('incompleto', 'pendiente')}</td><td class="m">—</td></tr></table>
+    <p class="ayuda">La ganancia (margen − gastos) se mostrará cuando exista el apartado de Gastos.${nivel === 'jornada' ? ' Por jornada es poco fiable: gastos como el gas cubren varias jornadas; mírala por semana o mes.' : ''}</p>
+  </div>`;
+
+  const ranking = Object.values(t.prods).sort((a, b) => b.unidades - a.unidades || b.monto - a.monto);
+  html += `<div class="card"><h2>Unidades por producto</h2><table class="rank"><thead><tr><th>#</th><th>Producto</th><th class="n">Unid.</th><th class="n">Ventas</th><th class="n">%</th></tr></thead><tbody>
+    ${ranking.map((p, i) => `<tr><td class="muted">${i + 1}</td><td>${h(p.nombre)}</td><td class="n">${p.unidades.toLocaleString('es-CL')}</td><td class="n">${pesos(p.monto)}</td>
+      <td class="n muted">${t.lista ? Math.round(p.monto / t.lista * 100) : 0}%</td></tr>`).join('')}
+    </tbody></table><p class="ayuda">Ventas a precio de lista, antes de descuentos.</p></div>`;
+  if (nivel !== 'jornada') html += `<p class="ayuda" style="text-align:center">Jornadas del período: ${t.fechas.slice().reverse().map(f => h(fechaCorta(f))).join(' · ')}<br>Semanas de lunes a domingo. Los días sin ventas no cuentan.</p>`;
+  v.innerHTML = html;
+  enlazarReportes(claves);
+}
+function enlazarReportes(claves) {
+  $('#vista').onclick = (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.nivel) {
+      // Al cambiar de nivel se mantiene el período que contiene la jornada más reciente del período actual.
+      const ultima = S.rep.clave ? agregarPeriodo(S.rep.clave, S.rep.nivel).fechas[0] : null;
+      S.rep.nivel = t.dataset.nivel; S.rep.clave = ultima ? clavePeriodo(ultima, S.rep.nivel) : null; pintar();
+    }
+    if (t.dataset.ir) { const i = claves.indexOf(S.rep.clave) + Number(t.dataset.ir); if (claves[i]) { S.rep.clave = claves[i]; pintar(); } }
+  };
+}
+
+// ───────────────────────────── Carta ─────────────────────────────
+function pintarCarta() {
+  const v = $('#vista');
+  if (S.carta.form) return pintarFormProducto();
+  v.oninput = v.onchange = null;
+  const prods = S.datos.productos.filter(p => S.carta.inactivos || p.activo);
+  const nInactivos = S.datos.productos.filter(p => !p.activo).length;
+  let html = `<button type="button" class="btn ancho" data-acc="nuevo" style="margin-bottom:12px">+ Agregar producto</button>`;
+  if (!S.datos.productos.length) {
+    html += `<div class="card"><h2>La Carta está vacía</h2><p>Agrega los productos uno a uno, o carga los nombres del catálogo inicial sugerido
+      (Americana, Clásica, Cheese, Italiana, Bacon, Rechicken, Fritanga, Empanadas, Papas, Jugos y Agrandar papas). Quedan con precio $0, “pendiente de configurar”, para que ingreses cada precio.</p>
+      <button type="button" class="btn sec ancho" data-acc="sugerido" data-guarda>Cargar catálogo sugerido (sin precios)</button></div>`;
+  } else {
+    html += `<div class="card">`;
+    agruparPorCategoria(prods.map(p => ({ id: p.id, nombre: p.nombre, categoria: p['categoría'], p }))).forEach(([cat, ps]) => {
+      html += `<h3>${h(cat)}</h3>`;
+      ps.forEach(({ p }) => {
+        html += `<button type="button" class="item-lista" data-edit="${h(p.id)}"><div><div style="font-weight:600">${h(p.nombre)}</div>
+          <div class="ayuda" style="margin:0">${h(p.tipo)}${!p.activo ? ' · <span class="tag gris">inactivo</span>' : ''}</div></div>
+          <div class="der">${p.precio_actual ? pesos(p.precio_actual) : '<span class="tag warn">pendiente de configurar</span>'}</div><span class="chev">›</span></button>`;
+      });
+    });
+    html += `</div>`;
+    if (nInactivos) html += `<label class="switch card"><span>Mostrar inactivos (${nInactivos})</span><input type="checkbox" id="verInactivos" ${S.carta.inactivos ? 'checked' : ''}></label>`;
+  }
+  html += `<p class="ayuda" style="text-align:center;margin-top:24px">Datos cargados: ${h(S.datos.ahora || '')}<br>
+    <button type="button" class="btn plano" data-acc="recargar">Recargar datos</button> · <button type="button" class="btn plano" data-acc="salir">Cerrar sesión en este teléfono</button></p>`;
+  v.innerHTML = html;
+  v.onchange = (e) => { if (e.target.id === 'verInactivos') { S.carta.inactivos = e.target.checked; pintar(); } };
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.edit) { const p = S.idx.prod[t.dataset.edit]; S.carta.form = { id: p.id, nombre: p.nombre, categoria: p['categoría'] || '', tipo: p.tipo || 'elaborado', precio: String(p.precio_actual || ''), activo: p.activo }; pintar(); window.scrollTo(0, 0); }
+    switch (t.dataset.acc) {
+      case 'nuevo': S.carta.form = { id: null, nombre: '', categoria: '', tipo: 'elaborado', precio: '', activo: true }; pintar(); window.scrollTo(0, 0); break;
+      case 'sugerido': escribir('cargarCatalogoSugerido', {}, uuid(), () => aviso('Catálogo cargado. Ahora ingresa los precios.')); break;
+      case 'recargar': cargar(); break;
+      case 'salir': mostrarModal({ titulo: 'Cerrar sesión', cuerpo: '<p>Se olvidará la clave en este teléfono. Los datos siguen en la planilla.</p>', botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: 'Cerrar sesión', clase: 'peligro', accion: () => salir() }] }); break;
+    }
+  };
+}
+
+function pintarFormProducto() {
+  const v = $('#vista');
+  const f = S.carta.form;
+  const p = f.id ? S.idx.prod[f.id] : null;
+  const categorias = [...new Set(S.datos.productos.map(x => x['categoría']).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  const tieneVentas = f.id && S.datos.ventas.some(x => x.producto_id === f.id);
+  const historial = f.id ? S.datos.precios.filter(x => x.producto_id === f.id).sort((a, b) => b.vigente_desde.localeCompare(a.vigente_desde)) : [];
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="volver">‹ Carta</button>
+    <form class="card" id="fProd" novalidate><h2>${f.id ? 'Editar producto' : 'Nuevo producto'}</h2>
+      <label class="campo">Nombre<input id="pNombre" maxlength="80" value="${h(f.nombre)}" autocomplete="off" required></label>
+      <label class="campo">Categoría<input id="pCat" maxlength="60" value="${h(f.categoria)}" list="listaCat" autocomplete="off" placeholder="Ej.: la que usen en la Carta"></label>
+      <datalist id="listaCat">${categorias.map(c => `<option value="${h(c)}">`).join('')}</datalist>
+      <label class="campo">Tipo<select id="pTipo">
+        <option value="elaborado" ${f.tipo === 'elaborado' ? 'selected' : ''}>Elaborado (lleva receta)</option>
+        <option value="reventa" ${f.tipo === 'reventa' ? 'selected' : ''}>Reventa (se compra listo)</option>
+        <option value="agregado" ${f.tipo === 'agregado' ? 'selected' : ''}>Agregado (ej.: Agrandar papas)</option></select></label>
+      <label class="campo">Precio de venta (final)<div class="pesos-in"><input class="entrada" id="pPrecio" type="text" inputmode="numeric" pattern="[0-9]*" value="${h(f.precio)}" placeholder="0"></div></label>
+      <p class="ayuda" id="pAvisoPrecio" style="margin-top:-6px">${ent(f.precio) ? '' : 'Con precio 0 queda como “pendiente de configurar”.'}</p>
+      <label class="switch"><span>Activo (aparece en el Cierre)</span><input type="checkbox" id="pActivo" ${f.activo ? 'checked' : ''}></label>
+      ${p ? `<p class="ayuda">Receta: se cargará en el apartado de Insumos y recetas. Mientras tanto se puede vender igual (su costo aparece como “costo incompleto”).</p>` : ''}
+      <div id="pError"></div>
+      <button class="btn ancho" type="submit" data-guarda>Guardar</button>
+    </form>
+    ${historial.length ? `<div class="card"><h2>Historial de precios</h2><table class="lineas">${historial.map(x => `<tr><td>Desde ${h(fechaCorta(x.vigente_desde))} ${h(x.vigente_desde.slice(0, 4))}</td><td>${x.precio ? pesos(x.precio) : '$0'}</td></tr>`).join('')}</table>
+      <p class="ayuda">Un cambio de precio rige desde hoy. Las jornadas ya guardadas mantienen el precio con que se registraron.</p></div>` : ''}
+    ${f.id ? `<button type="button" class="btn peligro ancho" data-acc="quitar" data-guarda>${tieneVentas ? 'Quitar (se desactiva)' : 'Quitar producto'}</button>` : ''}`;
+  const leer = () => { f.nombre = $('#pNombre').value; f.categoria = $('#pCat').value; f.tipo = $('#pTipo').value; f.precio = $('#pPrecio').value.replace(/\D/g, ''); f.activo = $('#pActivo').checked; };
+  v.oninput = (e) => {
+    if (e.target.id === 'pPrecio') { const l = e.target.value.replace(/\D/g, '').slice(0, 7); if (l !== e.target.value) e.target.value = l; $('#pAvisoPrecio').textContent = ent(l) ? '' : 'Con precio 0 queda como “pendiente de configurar”.'; }
+    leer();
+  };
+  v.onchange = leer;
+  $('#fProd').addEventListener('submit', (e) => {
+    e.preventDefault(); leer();
+    const nombre = f.nombre.trim().replace(/\s+/g, ' ');
+    if (!nombre) { $('#pError').innerHTML = '<div class="aviso bad">Falta el nombre.</div>'; return; }
+    const choca = S.datos.productos.find(x => x.id !== f.id && x.nombre.trim().toLowerCase().replace(/\s+/g, ' ') === nombre.toLowerCase());
+    if (choca) { $('#pError').innerHTML = `<div class="aviso bad">Ya existe un producto llamado “${h(choca.nombre)}”.</div>`; return; }
+    const datos = { id: f.id, nombre, categoria: f.categoria.trim(), tipo: f.tipo, precio: ent(f.precio), activo: f.activo };
+    const cambioPrecio = p && Number(p.precio_actual) !== datos.precio;
+    const enviar = () => escribir('guardarProducto', datos, uuid(), () => { S.carta.form = null; aviso(f.id ? 'Producto actualizado' : 'Producto agregado'); pintar(); });
+    if (cambioPrecio) mostrarModal({ titulo: 'Cambiar precio', cuerpo: `<p>${h(nombre)}: de <b>${pesos(p.precio_actual)}</b> a <b>${pesos(datos.precio)}</b>, desde hoy.</p><p class="ayuda">Las jornadas ya guardadas no cambian.</p>`,
+      botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: 'Guardar', accion: enviar }] });
+    else enviar();
+  });
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || t.closest('form')) return;
+    if (t.dataset.acc === 'volver') { S.carta.form = null; pintar(); }
+    if (t.dataset.acc === 'quitar') mostrarModal({
+      titulo: 'Quitar producto',
+      cuerpo: tieneVentas ? `<p><b>${h(p.nombre)}</b> tiene ventas registradas, así que no se borra: se <b>desactiva</b>. Desaparece del Cierre y sigue en el Historial y los Reportes.</p>`
+        : `<p><b>${h(p.nombre)}</b> nunca se ha vendido: se eliminará de la Carta junto con su historial de precios.</p>`,
+      botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: tieneVentas ? 'Desactivar' : 'Eliminar', clase: 'peligro', accion: () =>
+        escribir('quitarProducto', { id: f.id }, uuid(), (j) => { S.carta.form = null; aviso(j.resultado?.accion === 'desactivado' ? 'Producto desactivado' : 'Producto eliminado'); pintar(); }) }]
+    });
+  };
+}
+
+// ───────────────────────────── Inicio ─────────────────────────────
+document.addEventListener('visibilitychange', () => {
+  // Al volver a la app después de un rato, se refrescan los datos (por si se corrigió algo en la planilla).
+  if (document.visibilityState === 'visible' && S.clave && S.datos && !S.ocupado && Date.now() - S.cargadoEn > 5 * 60 * 1000) cargar(true);
+});
+pintar();
+if (S.clave && URL_SCRIPT.indexOf('http') === 0) cargar();
+</script>
+</body>
+</html>
