@@ -42,9 +42,9 @@ header h1 span { color: var(--brand); }
 #estado[data-e="guardado"] { background: var(--ok-soft); color: var(--ok); }
 #estado[data-e="error"], #estado[data-e="pendiente"] { background: var(--bad-soft); color: var(--bad); }
 main { max-width: 640px; margin: 0 auto; padding: 12px 16px 24px; }
-nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; display: grid; grid-template-columns: repeat(4, 1fr);
+nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr);
   background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
-nav.tabs button { border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--muted); padding: 10px 4px 12px; min-height: 60px;
+nav.tabs button { border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--muted); padding: 10px 4px 12px; min-height: 60px;
   display: flex; flex-direction: column; align-items: center; gap: 3px; }
 nav.tabs button svg { width: 24px; height: 24px; }
 nav.tabs button[aria-current="page"] { color: var(--brand); }
@@ -137,6 +137,27 @@ input[type="date"] { -webkit-appearance: none; appearance: none; }
 .volver { margin: -4px 0 8px -6px; }
 .muted { color: var(--muted); }
 .login { max-width: 420px; margin: 40px auto; }
+.menu-item { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 0; border: 0; border-top: 1px solid var(--line); background: none; font: inherit; color: inherit; text-align: left; }
+.menu-item:first-of-type { border-top: 0; }
+.menu-item .ico { width: 42px; height: 42px; border-radius: 12px; background: var(--brand-soft); color: var(--brand); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.menu-item .ico svg { width: 22px; height: 22px; }
+.menu-item .txt { flex: 1; } .menu-item .txt b { display: block; font-size: 17px; } .menu-item .txt span { font-size: 14px; color: var(--muted); }
+.linea-rec { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.linea-rec select { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); min-height: 48px; }
+.linea-rec .cant { width: 92px; position: relative; flex-shrink: 0; }
+.linea-rec .cant input { width: 100%; font: inherit; font-size: 17px; padding: 10px 30px 10px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); min-height: 48px; text-align: right; }
+.linea-rec .cant span { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
+.con-unidad { position: relative; }
+.con-unidad input { padding-right: 56px !important; }
+.con-unidad > span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; }
+.orden-fila { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+.orden-fila:first-of-type { border-top: 0; }
+.orden-fila .num { width: 26px; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+.orden-fila .nom { flex: 1; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.orden-fila button { width: 46px; height: 42px; border-radius: 10px; border: 0; background: var(--brand-soft); color: var(--brand); font-size: 20px; font-weight: 700; }
+.orden-fila button:disabled { opacity: .3; }
+.cabecera-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.cabecera-card h2 { margin: 0; }
 </style>
 </head>
 <body>
@@ -150,6 +171,7 @@ input[type="date"] { -webkit-appearance: none; appearance: none; }
   <button type="button" data-tab="historial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button>
   <button type="button" data-tab="reportes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Reportes</button>
   <button type="button" data-tab="carta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Carta</button>
+  <button type="button" data-tab="mas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>Más</button>
 </nav>
 <div id="capa"></div>
 
@@ -175,7 +197,9 @@ const S = {
   cierre: null,          // borrador del Cierre de jornada (se conserva al cambiar de pestaña)
   hist: { sel: null, edicion: null },
   rep: { nivel: 'semana', clave: null },
-  carta: { form: null, inactivos: false },
+  carta: { form: null, inactivos: false, receta: null },
+  mas: { vista: null, form: null },   // Gastos, Insumos, Compras, Inventario
+  ordenCierre: null,                  // lista de ids mientras se ordenan los productos del Cierre
   ocupado: false,
   pendiente: null,       // guardado que falló y espera reintento (solo mientras la app esté abierta)
   cargadoEn: 0
@@ -331,6 +355,7 @@ function resumenJornada(fecha) {
     unidades: lineas.reduce((s, v) => s + v.cantidad, 0),
     costo: conCosto.reduce((s, v) => s + v.cantidad * Number(v.costo_unitario), 0),
     sinCosto: lineas.filter(v => !conCosto.includes(v)).map(v => v.producto_id),
+    estimadas: conCosto.filter(v => v.costo_estado === 'estimado').length,
     precio0: lineas.filter(v => !v.precio_unitario).map(v => v.producto_id)
   };
 }
@@ -360,7 +385,9 @@ $('#tabs').addEventListener('click', (e) => {
   const b = e.target.closest('[data-tab]'); if (!b) return;
   if (S.tab === b.dataset.tab) { // segundo toque: volver al inicio de la pestaña
     if (S.tab === 'historial' && !S.hist.edicion) S.hist.sel = null;
-    if (S.tab === 'carta') S.carta.form = null;
+    if (S.tab === 'carta') { S.carta.form = null; S.carta.receta = null; }
+    if (S.tab === 'mas') S.mas = { vista: null, form: null };
+    if (S.tab === 'cierre') S.ordenCierre = null;
   }
   S.tab = b.dataset.tab; pintar(); window.scrollTo(0, 0);
 });
@@ -375,7 +402,7 @@ function pintar() {
   $('#tabs').hidden = false;
   document.querySelectorAll('#tabs [data-tab]').forEach(b => b.setAttribute('aria-current', b.dataset.tab === S.tab ? 'page' : 'false'));
   if (!S.datos) { v.innerHTML = `<div class="vacio">Cargando datos…</div>`; return; }
-  ({ cierre: pintarCierre, historial: pintarHistorial, reportes: pintarReportes, carta: pintarCarta })[S.tab]();
+  ({ cierre: pintarCierre, historial: pintarHistorial, reportes: pintarReportes, carta: pintarCarta, mas: pintarMas })[S.tab]();
   refrescarBotones();
 }
 
@@ -436,7 +463,7 @@ function productosEditor(b) {
   S.datos.productos.forEach(p => {
     const guardado = b.guardado && b.guardado[p.id];
     if (!p.activo && !guardado) return;
-    lista.push({ id: p.id, nombre: guardado ? guardado.nombre_producto : p.nombre, categoria: p['categoría'] || '', inactivo: !p.activo,
+    lista.push({ id: p.id, orden: p.orden, nombre: guardado ? guardado.nombre_producto : p.nombre, categoria: p['categoría'] || '', inactivo: !p.activo,
       precio: guardado ? guardado.precio_unitario : precioEnFecha(p.id, b.fecha), precioGuardado: !!guardado });
   });
   // Productos de la jornada que ya no existen en la Carta (borrados a mano en la planilla)
@@ -483,10 +510,10 @@ function editorHTML(b) {
         <br><button type="button" class="btn sec" data-acc="irEditar">Editar esa jornada</button></div>` : ''}
       ${futura ? `<div class="aviso bad">La fecha está en el futuro.</div>` : ''}</div>`;
   }
-  html += `<div class="card"><h2>Productos vendidos</h2>`;
+  html += `<div class="card"><div class="cabecera-card"><h2>Productos vendidos</h2>${b.modo === 'nueva' && prods.length > 1 ? '<button type="button" class="btn plano" data-acc="ordenar">Ordenar</button>' : ''}</div>`;
   if (!prods.length) html += `<p class="muted">No hay productos activos en la Carta. <button type="button" class="btn plano" data-acc="irCarta">Ir a la Carta</button></p>`;
-  agruparPorCategoria(prods).forEach(([cat, ps]) => {
-    html += `<h3>${h(cat)}</h3>`;
+  (ordenPersonalizado() ? [['', ordenarLista(prods)]] : agruparPorCategoria(prods)).forEach(([cat, ps]) => {
+    if (cat) html += `<h3>${h(cat)}</h3>`;
     ps.forEach(p => {
       const v = b.cant[p.id] || '';
       html += `<div class="prod"><div class="prod-info"><div class="nombre">${h(p.nombre)} ${p.inactivo ? '<span class="tag gris">inactivo</span>' : ''}</div>
@@ -565,6 +592,7 @@ function montarEditor(b) {
       case 'irEditar': S.tab = 'historial'; S.hist.sel = b.fecha; S.hist.edicion = borradorDesde(b.fecha); pintar(); window.scrollTo(0, 0); break;
       case 'irCarta': S.tab = 'carta'; pintar(); break;
       case 'cancelarEdicion': S.hist.edicion = null; pintar(); window.scrollTo(0, 0); break;
+      case 'ordenar': S.ordenCierre = ordenarLista(S.datos.productos.filter(p => p.activo).map(p => ({ id: p.id, orden: p.orden, nombre: p.nombre, categoria: p['categoría'] || '' }))).map(p => p.id); pintar(); window.scrollTo(0, 0); break;
       case 'revisar': confirmarGuardado(b); break;
     }
   };
@@ -614,6 +642,7 @@ function enviarJornada(b) {
 
 // ───────────────────────────── Cierre de jornada ─────────────────────────────
 function pintarCierre() {
+  if (S.ordenCierre) return pintarOrdenCierre();
   if (!S.cierre) S.cierre = borradorNuevo();
   montarEditor(S.cierre);
 }
@@ -649,13 +678,16 @@ function pintarHistorial() {
 
 function lineaCosto(r) {
   if (!r.lineas.length) return '';
+  const boton = r.sinCosto.length ? `<button type="button" class="btn sec ancho" data-acc="completarCostos" data-guarda style="margin-top:8px">Completar costos que faltan</button>` : '';
   if (r.sinCosto.length === r.lineas.length) {
-    return `<div class="aviso info">Costo y margen: aún no calculables (${r.sinCosto.length} ${r.sinCosto.length === 1 ? 'producto' : 'productos'} sin costo). Se habilitan al cargar recetas e insumos.</div>`;
+    return `<div class="aviso info">Costo y margen: ${r.sinCosto.length} ${r.sinCosto.length === 1 ? 'producto' : 'productos'} sin costo. Se calculan con las recetas y las compras (o costos de referencia) de los insumos.${boton}</div>`;
   }
   const margen = r.neto - r.costo;
-  return `<table class="lineas" style="margin-top:8px"><tr><td>Costo de lo vendido ${r.sinCosto.length ? `<span class="tag warn">incompleto</span>` : ''}</td><td>${pesos(r.costo)}</td></tr>
-    <tr><td>Margen ${r.sinCosto.length ? `<span class="tag warn">incompleto</span>` : ''}</td><td>${pesos(margen)}</td></tr></table>
-    ${r.sinCosto.length ? `<p class="ayuda">${r.sinCosto.length} productos sin costo.</p>` : ''}`;
+  const est = r.sinCosto.length ? etq('incompleto') : r.estimadas ? etq('estimado') : etq('completo');
+  return `<table class="lineas" style="margin-top:8px"><tr><td>Costo de lo vendido ${est}</td><td>${pesos(r.costo)}</td></tr>
+    <tr><td>Margen ${est}</td><td>${pesos(margen)}</td></tr></table>
+    ${r.sinCosto.length ? `<p class="ayuda">${r.sinCosto.length} ${r.sinCosto.length === 1 ? 'producto' : 'productos'} sin costo: el costo y el margen están incompletos.</p>` : ''}
+    ${r.estimadas ? `<p class="ayuda">Estimado: algún insumo usa su costo de referencia porque aún no tenía compras.</p>` : ''}${boton}`;
 }
 
 function pintarDetalle(fecha) {
@@ -679,6 +711,14 @@ function pintarDetalle(fecha) {
     const t = e.target.closest('button'); if (!t) return;
     if (t.dataset.acc === 'volver') { S.hist.sel = null; pintar(); }
     if (t.dataset.acc === 'editar') { S.hist.edicion = borradorDesde(fecha); pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.acc === 'completarCostos') mostrarModal({
+      titulo: 'Completar costos', cuerpo: `<p>Se calculará el costo de los productos de esta jornada que quedaron sin costo, con la receta vigente y los costos de insumos de esa fecha (${h(fechaCorta(fecha))}).</p>
+        <p class="ayuda">Lo que ya tenía costo no cambia. Si a un producto le falta receta o el costo de algún insumo, seguirá sin costo.</p>`,
+      botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: 'Completar', accion: () => escribir('completarCostos', { fecha }, uuid(), (j) => {
+        const r2 = j.resultado || {};
+        aviso(r2.completados ? `${r2.completados} ${r2.completados === 1 ? 'costo completado' : 'costos completados'}${r2.pendientes ? ` · ${r2.pendientes} sin datos` : ''}` : 'Faltan recetas o costos de insumos para completar');
+      }) }]
+    });
     if (t.dataset.acc === 'eliminar') mostrarModal({
       titulo: 'Eliminar jornada', cuerpo: `<p>Se eliminará la jornada del <b>${h(fechaLarga(fecha))}</b> (${r.unidades} unidades, ingreso neto ${pesos(r.neto)}), con sus deliveries.</p>
         <p class="ayuda">Si fue un error, se puede recuperar desde el historial de versiones de la planilla en Google Sheets.</p>`,
@@ -712,12 +752,14 @@ function etiquetaPeriodo(clave, nivel) {
 }
 function agregarPeriodo(clave, nivel) {
   const fechas = S.idx.jornadas.filter(j => clavePeriodo(j.fecha, nivel) === clave).map(j => j.fecha);
-  const t = { fechas, jornadas: fechas.length, lista: 0, descuentos: 0, deliveries: 0, nDel: 0, neto: 0, costo: 0, unidades: 0, prods: {}, sinCosto: new Set(), precio0: new Set(), lineas: 0, lineasSinCosto: 0 };
+  const t = { fechas, jornadas: fechas.length, lista: 0, descuentos: 0, deliveries: 0, nDel: 0, neto: 0, costo: 0, unidades: 0, prods: {}, sinCosto: new Set(), precio0: new Set(), lineas: 0, lineasSinCosto: 0, lineasEstimadas: 0 };
+  t.gastosLista = S.datos.gastos.filter(g => clavePeriodo(g.fecha, nivel) === clave);
+  t.gastos = t.gastosLista.reduce((s, g) => s + g.monto, 0);
   fechas.forEach(f => {
     const r = resumenJornada(f);
     t.lista += r.lista; t.descuentos += r.descuentos; t.deliveries += r.deliveries; t.nDel += r.dels.length; t.neto += r.neto; t.costo += r.costo; t.unidades += r.unidades;
     r.sinCosto.forEach(p => t.sinCosto.add(p)); r.precio0.forEach(p => t.precio0.add(p));
-    t.lineas += r.lineas.length; t.lineasSinCosto += r.sinCosto.length;
+    t.lineas += r.lineas.length; t.lineasSinCosto += r.sinCosto.length; t.lineasEstimadas += r.estimadas;
     r.lineas.forEach(v => {
       const p = t.prods[v.producto_id] = t.prods[v.producto_id] || { id: v.producto_id, nombre: nombreProd(v.producto_id, v.nombre_producto), unidades: 0, monto: 0, costo: 0, sinCosto: false };
       p.unidades += v.cantidad; p.monto += v.subtotal;
@@ -725,6 +767,9 @@ function agregarPeriodo(clave, nivel) {
     });
   });
   t.promedio = t.jornadas ? t.neto / t.jornadas : 0;
+  t.estadoCosto = t.lineasSinCosto ? 'incompleto' : t.lineasEstimadas ? 'estimado' : 'completo';
+  t.margen = t.neto - t.costo;
+  t.ganancia = t.margen - t.gastos;
   return t;
 }
 function variacion(actual, anterior) {
@@ -770,18 +815,23 @@ function pintarReportes() {
     ${t.precio0.size ? `<p class="ayuda">${t.precio0.size} ${t.precio0.size === 1 ? 'producto se vendió' : 'productos se vendieron'} con precio pendiente de configurar ($0).</p>` : ''}
   </div>`;
 
-  // Costo, margen y ganancia: indican qué falta (recetas = fase 5, gastos = fase 4).
+  // Costo, margen, gastos y ganancia: cada cifra indica si está completa, estimada o incompleta.
   const sinCosto = t.sinCosto.size;
-  const margen = t.neto - t.costo;
-  const estCosto = t.lineasSinCosto === 0 ? etq('completo') : t.lineasSinCosto === t.lineas ? etq('incompleto', 'costo incompleto') : etq('incompleto');
-  html += `<div class="card"><h2>Costo y ganancia</h2>
-    ${t.lineasSinCosto === t.lineas
-      ? `<table class="lineas"><tr><td>Costo de lo vendido ${estCosto}</td><td class="m">—</td></tr><tr><td>Margen ${estCosto}</td><td class="m">—</td></tr></table>
-         <p class="ayuda">${sinCosto} ${sinCosto === 1 ? 'producto' : 'productos'} sin costo. El costo se calculará cuando se carguen insumos y recetas.</p>`
-      : `<table class="lineas"><tr><td>Costo de lo vendido ${estCosto}</td><td>${pesos(t.costo)}</td></tr><tr><td>Margen ${estCosto}</td><td>${pesos(margen)}</td></tr></table>
-         ${sinCosto ? `<p class="ayuda">${sinCosto} productos sin costo: el costo y el margen están incompletos.</p>` : ''}`}
-    <table class="lineas" style="margin-top:6px"><tr><td>Ganancia del período ${etq('incompleto', 'pendiente')}</td><td class="m">—</td></tr></table>
-    <p class="ayuda">La ganancia (margen − gastos) se mostrará cuando exista el apartado de Gastos.${nivel === 'jornada' ? ' Por jornada es poco fiable: gastos como el gas cubren varias jornadas; mírala por semana o mes.' : ''}</p>
+  const estCosto = etq(t.estadoCosto, t.estadoCosto === 'incompleto' ? 'costo incompleto' : t.estadoCosto);
+  const nadaDeCosto = t.lineasSinCosto === t.lineas;
+  const porCat = {};
+  t.gastosLista.forEach(g => { porCat[g.categoria] = (porCat[g.categoria] || 0) + g.monto; });
+  html += `<div class="card"><h2>Costo y ganancia</h2><table class="lineas">
+    <tr><td>Ingreso neto</td><td>${pesos(t.neto)}</td></tr>
+    <tr><td>Costo de lo vendido ${estCosto}</td><td>${nadaDeCosto ? '—' : '− ' + pesos(t.costo)}</td></tr>
+    <tr class="total"><td>Margen ${estCosto}</td><td>${nadaDeCosto ? '—' : pesos(t.margen)}</td></tr>
+    <tr><td>Gastos del período ${t.gastosLista.length ? '' : etq('incompleto', 'sin gastos')}</td><td>− ${pesos(t.gastos)}</td></tr>
+    ${Object.entries(porCat).sort((a, b) => b[1] - a[1]).map(([c, m]) => `<tr><td class="m">&nbsp;&nbsp;${h(c)}</td><td class="m">${pesos(m)}</td></tr>`).join('')}
+    <tr class="total"><td>Ganancia ${etq(t.estadoCosto === 'completo' && t.gastosLista.length ? 'completo' : t.estadoCosto === 'estimado' && t.gastosLista.length ? 'estimado' : 'incompleto', t.estadoCosto === 'completo' && t.gastosLista.length ? 'completo' : t.estadoCosto === 'estimado' && t.gastosLista.length ? 'estimado' : 'incompleta')}</td><td>${nadaDeCosto ? '—' : pesos(t.ganancia)}</td></tr></table>
+    ${sinCosto ? `<p class="ayuda">${sinCosto} ${sinCosto === 1 ? 'producto' : 'productos'} sin costo (falta receta, compras o costo de referencia)${nadaDeCosto ? '' : ': el costo, el margen y la ganancia están incompletos'}. En el Historial, cada jornada tiene “Completar costos que faltan”.</p>` : ''}
+    ${t.estadoCosto === 'estimado' ? '<p class="ayuda">Estimado: algún insumo usa su costo de referencia porque aún no tenía compras.</p>' : ''}
+    ${t.gastosLista.length ? '' : '<p class="ayuda">Sin gastos registrados en el período (Más → Gastos).</p>'}
+    ${nivel === 'jornada' ? '<p class="ayuda">Por jornada, la ganancia es poco fiable: gastos como el gas cubren varias jornadas. Mírala por semana o mes.</p>' : ''}
   </div>`;
 
   const ranking = Object.values(t.prods).sort((a, b) => b.unidades - a.unidades || b.monto - a.monto);
@@ -789,6 +839,10 @@ function pintarReportes() {
     ${ranking.map((p, i) => `<tr><td class="muted">${i + 1}</td><td>${h(p.nombre)}</td><td class="n">${p.unidades.toLocaleString('es-CL')}</td><td class="n">${pesos(p.monto)}</td>
       <td class="n muted">${t.lista ? Math.round(p.monto / t.lista * 100) : 0}%</td></tr>`).join('')}
     </tbody></table><p class="ayuda">Ventas a precio de lista, antes de descuentos.</p></div>`;
+  const conMargen = ranking.filter(p => !p.sinCosto);
+  if (conMargen.length) html += `<div class="card"><h2>Margen por producto</h2><table class="rank"><thead><tr><th>Producto</th><th class="n">Costo</th><th class="n">Margen</th><th class="n">%</th></tr></thead><tbody>
+    ${conMargen.map(p => `<tr><td>${h(p.nombre)}</td><td class="n">${pesos(p.costo)}</td><td class="n">${pesos(p.monto - p.costo)}</td><td class="n muted">${p.monto ? Math.round((p.monto - p.costo) / p.monto * 100) : 0}%</td></tr>`).join('')}
+    </tbody></table><p class="ayuda">A precio de lista (antes de descuentos y sin deliveries).${ranking.length > conMargen.length ? ` ${ranking.length - conMargen.length} sin costo no aparecen.` : ''}</p></div>`;
   if (nivel !== 'jornada') html += `<p class="ayuda" style="text-align:center">Jornadas del período: ${t.fechas.slice().reverse().map(f => h(fechaCorta(f))).join(' · ')}<br>Semanas de lunes a domingo. Los días sin ventas no cuentan.</p>`;
   v.innerHTML = html;
   enlazarReportes(claves);
@@ -808,6 +862,7 @@ function enlazarReportes(claves) {
 // ───────────────────────────── Carta ─────────────────────────────
 function pintarCarta() {
   const v = $('#vista');
+  if (S.carta.receta) return pintarReceta();
   if (S.carta.form) return pintarFormProducto();
   v.oninput = v.onchange = null;
   const prods = S.datos.productos.filter(p => S.carta.inactivos || p.activo);
@@ -823,15 +878,14 @@ function pintarCarta() {
       html += `<h3>${h(cat)}</h3>`;
       ps.forEach(({ p }) => {
         html += `<button type="button" class="item-lista" data-edit="${h(p.id)}"><div><div style="font-weight:600">${h(p.nombre)}</div>
-          <div class="ayuda" style="margin:0">${h(p.tipo)}${!p.activo ? ' · <span class="tag gris">inactivo</span>' : ''}</div></div>
+          <div class="ayuda" style="margin:0">${h(p.tipo)}${textoCostoCorto(p)}${!p.activo ? ' · <span class="tag gris">inactivo</span>' : ''}</div></div>
           <div class="der">${p.precio_actual ? pesos(p.precio_actual) : '<span class="tag warn">pendiente de configurar</span>'}</div><span class="chev">›</span></button>`;
       });
     });
     html += `</div>`;
     if (nInactivos) html += `<label class="switch card"><span>Mostrar inactivos (${nInactivos})</span><input type="checkbox" id="verInactivos" ${S.carta.inactivos ? 'checked' : ''}></label>`;
   }
-  html += `<p class="ayuda" style="text-align:center;margin-top:24px">Datos cargados: ${h(S.datos.ahora || '')}<br>
-    <button type="button" class="btn plano" data-acc="recargar">Recargar datos</button> · <button type="button" class="btn plano" data-acc="salir">Cerrar sesión en este teléfono</button></p>`;
+
   v.innerHTML = html;
   v.onchange = (e) => { if (e.target.id === 'verInactivos') { S.carta.inactivos = e.target.checked; pintar(); } };
   v.onclick = (e) => {
@@ -865,10 +919,10 @@ function pintarFormProducto() {
       <label class="campo">Precio de venta (final)<div class="pesos-in"><input class="entrada" id="pPrecio" type="text" inputmode="numeric" pattern="[0-9]*" value="${h(f.precio)}" placeholder="0"></div></label>
       <p class="ayuda" id="pAvisoPrecio" style="margin-top:-6px">${ent(f.precio) ? '' : 'Con precio 0 queda como “pendiente de configurar”.'}</p>
       <label class="switch"><span>Activo (aparece en el Cierre)</span><input type="checkbox" id="pActivo" ${f.activo ? 'checked' : ''}></label>
-      ${p ? `<p class="ayuda">Receta: se cargará en el apartado de Insumos y recetas. Mientras tanto se puede vender igual (su costo aparece como “costo incompleto”).</p>` : ''}
       <div id="pError"></div>
       <button class="btn ancho" type="submit" data-guarda>Guardar</button>
     </form>
+    ${p ? tarjetaCostoProducto(p) : ''}
     ${historial.length ? `<div class="card"><h2>Historial de precios</h2><table class="lineas">${historial.map(x => `<tr><td>Desde ${h(fechaCorta(x.vigente_desde))} ${h(x.vigente_desde.slice(0, 4))}</td><td>${x.precio ? pesos(x.precio) : '$0'}</td></tr>`).join('')}</table>
       <p class="ayuda">Un cambio de precio rige desde hoy. Las jornadas ya guardadas mantienen el precio con que se registraron.</p></div>` : ''}
     ${f.id ? `<button type="button" class="btn peligro ancho" data-acc="quitar" data-guarda>${tieneVentas ? 'Quitar (se desactiva)' : 'Quitar producto'}</button>` : ''}`;
@@ -894,6 +948,9 @@ function pintarFormProducto() {
   v.onclick = (e) => {
     const t = e.target.closest('button'); if (!t || t.closest('form')) return;
     if (t.dataset.acc === 'volver') { S.carta.form = null; pintar(); }
+    if (t.dataset.acc === 'receta') { S.carta.receta = borradorReceta(f.id); pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.acc === 'irInsumos') { S.tab = 'mas'; S.mas = { vista: 'insumos', form: null }; pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.acc === 'irCompras') { S.tab = 'mas'; S.mas = { vista: 'compras', form: null }; pintar(); window.scrollTo(0, 0); }
     if (t.dataset.acc === 'quitar') mostrarModal({
       titulo: 'Quitar producto',
       cuerpo: tieneVentas ? `<p><b>${h(p.nombre)}</b> tiene ventas registradas, así que no se borra: se <b>desactiva</b>. Desaparece del Cierre y sigue en el Historial y los Reportes.</p>`
@@ -901,6 +958,524 @@ function pintarFormProducto() {
       botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: tieneVentas ? 'Desactivar' : 'Eliminar', clase: 'peligro', accion: () =>
         escribir('quitarProducto', { id: f.id }, uuid(), (j) => { S.carta.form = null; aviso(j.resultado?.accion === 'desactivado' ? 'Producto desactivado' : 'Producto eliminado'); pintar(); }) }]
     });
+  };
+}
+
+// ───────────────────────────── Unidades y números ─────────────────────────────
+// Recetas en g, ml o unidades. Compras, conteos, stock mínimo y costos se muestran en kg, L o unidades.
+const FACTOR = { g: 1000, ml: 1000, unidad: 1 };
+const GRANDE = { g: 'kg', ml: 'L', unidad: 'u' };
+const BASE = { g: 'g', ml: 'ml', unidad: 'u' };
+const num = (n, d = 2) => Number(n || 0).toLocaleString('es-CL', { maximumFractionDigits: d });
+function dec(v) {
+  let t = String(v ?? '').trim().replace(/\s/g, '');
+  if (!t) return NaN;
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  return /^\d*\.?\d+$|^\d+\.$/.test(t) ? Number(t) : NaN;
+}
+const decTexto = (n) => (n === '' || n === null || n === undefined) ? '' : String(Math.round(Number(n) * 10000) / 10000).replace('.', ',');
+const aBase = (v, u) => Math.round(dec(v) * FACTOR[u] * 10000) / 10000;
+const cantGrande = (base, u) => `${num(base / FACTOR[u], 3)} ${GRANDE[u]}`;
+const costoGrande = (c, u) => `${pesos(c * FACTOR[u])} / ${GRANDE[u]}`;
+const limpiarDec = (t) => t.value.replace(/[^\d,.]/g, '');
+function etqEstado(e) {
+  return e === 'completo' ? etq('completo') : e === 'estimado' ? etq('estimado') : etq('incompleto', e === 'falta' ? 'sin costo' : 'costo incompleto');
+}
+/** Insumos y productos de reventa: lo que se compra y se cuenta. */
+function articulos(incluirInactivos) {
+  const a = S.datos.insumos.filter(i => incluirInactivos || i.activo).map(i => ({ id: i.id, nombre: i.nombre, unidad: i.unidad, tipo: 'insumo', activo: i.activo }));
+  S.datos.productos.filter(p => p.tipo === 'reventa' && (incluirInactivos || p.activo)).forEach(p => a.push({ id: p.id, nombre: p.nombre, unidad: 'unidad', tipo: 'reventa', activo: p.activo }));
+  return a.sort((x, y) => x.nombre.localeCompare(y.nombre, 'es'));
+}
+const articuloPor = (id) => articulos(true).find(a => a.id === id);
+const mesActual = () => hoy().slice(0, 7);
+function moverMes(m, n) { let [y, mm] = m.split('-').map(Number); mm += n; while (mm < 1) { mm += 12; y--; } while (mm > 12) { mm -= 12; y++; } return `${y}-${String(mm).padStart(2, '0')}`; }
+function navMes(m) {
+  return `<div class="periodo"><button type="button" data-mes="-1" aria-label="Mes anterior">‹</button><div class="lbl">${h(etiquetaPeriodo(m, 'mes'))}</div>
+    <button type="button" data-mes="1" ${m >= mesActual() ? 'disabled' : ''} aria-label="Mes siguiente">›</button></div>`;
+}
+/** Copia lo que se escribe en los campos con name="…" al objeto del formulario (así no se pierde al cambiar de pestaña). */
+function sincronizar(f) { return (e) => { const t = e.target; if (!t.name) return; f[t.name] = t.type === 'checkbox' ? t.checked : t.value; }; }
+const volverMas = `<button type="button" class="btn plano volver" data-acc="menu">‹ Más</button>`;
+
+// ───────────────────────────── Orden de productos en el Cierre ─────────────────────────────
+function ordenPersonalizado() { return S.datos.productos.some(p => p.orden !== '' && p.orden !== null && p.orden !== undefined && Number(p.orden) > 0); }
+function ordenarLista(lista) {
+  const o = (p) => (p.orden !== '' && p.orden !== null && p.orden !== undefined && Number(p.orden) > 0) ? Number(p.orden) : 1e9;
+  return lista.slice().sort((a, b) => o(a) - o(b) || (a.categoria || '~').localeCompare(b.categoria || '~', 'es') || a.nombre.localeCompare(b.nombre, 'es'));
+}
+function pintarOrdenCierre() {
+  const v = $('#vista');
+  v.oninput = v.onchange = null;
+  const ids = S.ordenCierre;
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="cancelar">‹ Cierre</button>
+    <div class="card"><h2>Ordenar productos</h2><p class="ayuda" style="margin:0 0 10px">Usa las flechas para dejar arriba lo que más venden. El orden se guarda y se usa en cada Cierre.</p>
+      <div class="fila-btns" style="margin-bottom:8px"><button type="button" class="btn sec" data-acc="porCategoria">Por categoría</button><button type="button" class="btn sec" data-acc="masVendidos">Más vendidos primero</button></div>
+      ${ids.map((id, i) => `<div class="orden-fila"><span class="num">${i + 1}</span><span class="nom">${h(S.idx.prod[id]?.nombre || '')}</span>
+        <button type="button" data-sube="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Subir">↑</button><button type="button" data-baja="${i}" ${i === ids.length - 1 ? 'disabled' : ''} aria-label="Bajar">↓</button></div>`).join('')}
+    </div>
+    <div class="fila-btns"><button type="button" class="btn sec" data-acc="cancelar">Cancelar</button><button type="button" class="btn" data-acc="guardarOrden" data-guarda>Guardar orden</button></div>`;
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    const mover = (i, j) => { [ids[i], ids[j]] = [ids[j], ids[i]]; pintarOrdenCierre(); refrescarBotones(); };
+    if (t.dataset.sube) return mover(Number(t.dataset.sube), Number(t.dataset.sube) - 1);
+    if (t.dataset.baja) return mover(Number(t.dataset.baja), Number(t.dataset.baja) + 1);
+    const prodInfo = (id) => ({ nombre: S.idx.prod[id].nombre, categoria: S.idx.prod[id]['categoría'] || '~' });
+    switch (t.dataset.acc) {
+      case 'cancelar': S.ordenCierre = null; pintar(); break;
+      case 'porCategoria': ids.sort((a, b) => prodInfo(a).categoria.localeCompare(prodInfo(b).categoria, 'es') || prodInfo(a).nombre.localeCompare(prodInfo(b).nombre, 'es')); pintarOrdenCierre(); refrescarBotones(); break;
+      case 'masVendidos': {
+        const desde = sumarDias(hoy(), -60), u = {};
+        S.datos.ventas.forEach(x => { if (x.fecha_jornada >= desde) u[x.producto_id] = (u[x.producto_id] || 0) + x.cantidad; });
+        ids.sort((a, b) => (u[b] || 0) - (u[a] || 0) || prodInfo(a).nombre.localeCompare(prodInfo(b).nombre, 'es'));
+        pintarOrdenCierre(); refrescarBotones(); aviso('Ordenado por unidades vendidas (últimos 60 días)'); break;
+      }
+      case 'guardarOrden': escribir('ordenarProductos', { ids: ids.slice() }, uuid(), () => { S.ordenCierre = null; aviso('Orden guardado'); pintar(); window.scrollTo(0, 0); }); break;
+    }
+  };
+}
+
+// ───────────────────────────── Costo y receta de un producto (desde la Carta) ─────────────────────────────
+function textoCostoCorto(p) {
+  const c = S.datos.costosHoy[p.id];
+  if (!c || c.costo === null || c.costo === undefined) return '';
+  const m = p.precio_actual ? ` · ${Math.round((p.precio_actual - c.costo) / p.precio_actual * 100)}% margen` : '';
+  return ` · costo ${pesos(c.costo)}${c.estado === 'estimado' ? ' (est.)' : ''}${m}`;
+}
+function recetaActual(pid) {
+  const vs = {};
+  S.datos.recetas.filter(r => r.producto_id === pid).forEach(r => {
+    const v = vs[r.version] = vs[r.version] || { version: r.version, vigente_desde: r.vigente_desde, lineas: [] };
+    v.lineas.push({ insumo_id: r.insumo_id, cantidad: Number(r.cantidad) });
+  });
+  const lista = Object.values(vs).sort((a, b) => a.vigente_desde.localeCompare(b.vigente_desde) || a.version - b.version);
+  return { actual: lista[lista.length - 1] || null, versiones: lista };
+}
+function tarjetaCostoProducto(p) {
+  const c = S.datos.costosHoy[p.id] || {};
+  const margen = (c.costo !== null && c.costo !== undefined && p.precio_actual) ? `<tr><td>Margen a precio de Carta</td><td>${pesos(p.precio_actual - c.costo)} (${Math.round((p.precio_actual - c.costo) / p.precio_actual * 100)}%)</td></tr>` : '';
+  if (p.tipo === 'reventa') {
+    return `<div class="card"><h2>Costo</h2>${c.costo !== null && c.costo !== undefined
+      ? `<table class="lineas"><tr><td>Costo por unidad ${etqEstado(c.estado)}</td><td>${pesos(c.costo)}</td></tr>${margen}</table><p class="ayuda">Promedio de lo pagado por unidad en Compras. Se compra listo: no lleva receta.</p>`
+      : `<p class="ayuda" style="margin:0 0 8px">Se compra listo: no lleva receta. Su costo sale de las Compras y por ahora no hay ninguna (aparece como “costo incompleto”).</p>`}
+      <button type="button" class="btn sec ancho" data-acc="irCompras">Ir a Compras</button></div>`;
+  }
+  const { actual } = recetaActual(p.id);
+  if (!actual) {
+    return `<div class="card"><h2>Receta y costo</h2><p class="ayuda" style="margin:0 0 8px">Sin receta: se puede vender igual, pero su costo aparece como “costo incompleto”.</p>
+      ${S.datos.insumos.length ? '' : '<div class="aviso info">Primero agrega los insumos (carne, pan, queso…) en Más → Insumos.<br><button type="button" class="btn sec" data-acc="irInsumos">Ir a Insumos</button></div>'}
+      <button type="button" class="btn ancho" data-acc="receta">Crear receta</button></div>`;
+  }
+  const filas = actual.lineas.map(l => {
+    const ins = S.datos.insumos.find(i => i.id === l.insumo_id) || { nombre: '(insumo eliminado)', unidad: 'g' };
+    const ic = S.datos.insumosCosto[l.insumo_id] || {};
+    return `<tr><td>${num(l.cantidad, 3)} ${BASE[ins.unidad]} ${h(ins.nombre)}</td><td>${ic.costo !== null && ic.costo !== undefined ? pesos(l.cantidad * ic.costo) : '<span class="tag bad">sin costo</span>'}</td></tr>`;
+  }).join('');
+  return `<div class="card"><h2>Receta y costo</h2><table class="lineas">${filas}
+    <tr class="total"><td>Costo ${etqEstado(c.estado)}</td><td>${c.costo !== null && c.costo !== undefined ? pesos(c.costo) : '—'}</td></tr>${margen}</table>
+    ${c.faltan && c.faltan.length ? `<p class="ayuda">Falta el costo de: ${h(c.faltan.join(', '))}. Regístralo en Compras o ponle un costo de referencia en Insumos.</p>` : ''}
+    ${c.estado === 'estimado' ? '<p class="ayuda">Estimado: algún insumo usa su costo de referencia porque aún no tiene compras.</p>' : ''}
+    <p class="ayuda">Versión ${actual.version}, vigente desde ${h(fechaCorta(actual.vigente_desde))} ${h(actual.vigente_desde.slice(0, 4))}.</p>
+    <button type="button" class="btn sec ancho" data-acc="receta">Editar receta</button></div>`;
+}
+
+function borradorReceta(pid) {
+  const { actual } = recetaActual(pid);
+  return { producto_id: pid, vigente_desde: hoy(), min: actual ? actual.vigente_desde : '',
+    lineas: actual ? actual.lineas.map(l => ({ k: uuid(), insumo_id: l.insumo_id, cantidad: decTexto(l.cantidad) })) : [{ k: uuid(), insumo_id: '', cantidad: '' }] };
+}
+function pintarReceta() {
+  const v = $('#vista');
+  const r = S.carta.receta;
+  const p = S.idx.prod[r.producto_id];
+  if (!p) { S.carta.receta = null; return pintar(); }
+  const usados = new Set(r.lineas.map(l => l.insumo_id));
+  const opciones = S.datos.insumos.filter(i => i.activo || usados.has(i.id)).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  const { versiones } = recetaActual(p.id);
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="volverProd">‹ ${h(p.nombre)}</button>
+    <div class="card"><h2>Receta: ${h(p.nombre)}</h2>
+      <p class="ayuda" style="margin:-4px 0 12px">Cantidad de cada insumo para <b>una unidad vendida</b>, en gramos (g), mililitros (ml) o unidades (u). Pesen los ingredientes. Si es una hamburguesa, incluyan su porción de papas.</p>
+      ${opciones.length ? '' : '<div class="aviso info">No hay insumos. Agrégalos primero en Más → Insumos.<br><button type="button" class="btn sec" data-acc="irInsumos">Ir a Insumos</button></div>'}
+      ${r.lineas.map(l => {
+        const ins = S.datos.insumos.find(i => i.id === l.insumo_id);
+        return `<div class="linea-rec"><select data-ins="${h(l.k)}" aria-label="Insumo"><option value="">Elegir insumo…</option>${opciones.map(i => `<option value="${h(i.id)}" ${i.id === l.insumo_id ? 'selected' : ''}>${h(i.nombre)}</option>`).join('')}</select>
+          <div class="cant"><input type="text" inputmode="decimal" data-cantrec="${h(l.k)}" value="${h(l.cantidad)}" placeholder="0" aria-label="Cantidad"><span>${ins ? BASE[ins.unidad] : ''}</span></div>
+          <button type="button" class="quitar" data-quitarlin="${h(l.k)}" aria-label="Quitar insumo">×</button></div>`;
+      }).join('')}
+      <button type="button" class="btn sec ancho" data-acc="agregarLin">+ Agregar insumo</button>
+      <label class="campo" style="margin-top:14px">Vigente desde<input type="date" id="recDesde" value="${h(r.vigente_desde)}" ${r.min ? `min="${h(r.min)}"` : ''} max="${h(hoy())}"></label>
+      <p class="ayuda" style="margin-top:-6px">Las jornadas ya guardadas no cambian. Si es la misma fecha de la versión vigente, la reemplaza.</p>
+      <div id="recCosto"></div>
+      <button type="button" class="btn ancho" data-acc="guardarRec" data-guarda style="margin-top:10px">Guardar receta</button>
+    </div>
+    ${versiones.length ? `<div class="card"><h2>Versiones</h2><table class="lineas">${versiones.slice().reverse().map(x => `<tr><td>Versión ${x.version} · desde ${h(fechaCorta(x.vigente_desde))} ${h(x.vigente_desde.slice(0, 4))}</td><td class="m">${x.lineas.length} insumos</td></tr>`).join('')}</table></div>` : ''}`;
+  const costo = () => {
+    let total = 0, falta = [], est = false, alguna = false;
+    r.lineas.forEach(l => {
+      const c = dec(l.cantidad); if (!l.insumo_id || !(c > 0)) return;
+      alguna = true;
+      const ic = S.datos.insumosCosto[l.insumo_id] || {};
+      if (ic.costo === null || ic.costo === undefined) falta.push(S.datos.insumos.find(i => i.id === l.insumo_id)?.nombre || '');
+      else { total += c * ic.costo; if (ic.estado === 'estimado') est = true; }
+    });
+    $('#recCosto').innerHTML = !alguna ? '' : `<table class="lineas"><tr class="total"><td>Costo hoy ${etqEstado(falta.length ? 'incompleto' : est ? 'estimado' : 'completo')}</td><td>${falta.length ? '—' : pesos(total)}</td></tr>
+      ${!falta.length && p.precio_actual ? `<tr><td>Margen a ${pesos(p.precio_actual)}</td><td>${pesos(p.precio_actual - total)} (${Math.round((p.precio_actual - total) / p.precio_actual * 100)}%)</td></tr>` : ''}</table>
+      ${falta.length ? `<p class="ayuda">Sin costo: ${h(falta.join(', '))}.</p>` : ''}`;
+  };
+  costo();
+  v.oninput = (e) => {
+    const t = e.target;
+    if (t.dataset.cantrec) { const l = r.lineas.find(x => x.k === t.dataset.cantrec); const c = limpiarDec(t); if (c !== t.value) t.value = c; l.cantidad = c; costo(); }
+  };
+  v.onchange = (e) => {
+    const t = e.target;
+    if (t.dataset.ins) { r.lineas.find(x => x.k === t.dataset.ins).insumo_id = t.value; pintarReceta(); refrescarBotones(); }
+    if (t.id === 'recDesde') r.vigente_desde = t.value;
+  };
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.quitarlin) { r.lineas = r.lineas.filter(x => x.k !== t.dataset.quitarlin); pintarReceta(); refrescarBotones(); return; }
+    switch (t.dataset.acc) {
+      case 'volverProd': S.carta.receta = null; pintar(); break;
+      case 'irInsumos': S.carta.receta = null; S.tab = 'mas'; S.mas = { vista: 'insumos', form: null }; pintar(); break;
+      case 'agregarLin': r.lineas.push({ k: uuid(), insumo_id: '', cantidad: '' }); pintarReceta(); refrescarBotones(); break;
+      case 'guardarRec': {
+        const lineas = r.lineas.filter(l => l.insumo_id && dec(l.cantidad) > 0).map(l => ({ insumo_id: l.insumo_id, cantidad: dec(l.cantidad) }));
+        if (!lineas.length) return mostrarModal({ titulo: 'Receta vacía', cuerpo: '<p>Elige al menos un insumo y su cantidad.</p>', botones: [{ texto: 'Entendido' }] });
+        if (r.lineas.some(l => l.insumo_id && !(dec(l.cantidad) > 0))) return mostrarModal({ titulo: 'Falta una cantidad', cuerpo: '<p>Hay un insumo sin cantidad. Escríbela o quita esa fila.</p>', botones: [{ texto: 'Entendido' }] });
+        escribir('guardarReceta', { producto_id: r.producto_id, vigente_desde: r.vigente_desde, lineas }, uuid(), () => { S.carta.receta = null; aviso('Receta guardada'); pintar(); window.scrollTo(0, 0); });
+        break;
+      }
+    }
+  };
+}
+
+// ───────────────────────────── Más: menú ─────────────────────────────
+const ICONOS = {
+  gastos: '<path d="M12 3v18M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/>',
+  insumos: '<path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8h-9A2 2 0 0 1 5.5 19z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/>',
+  compras: '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.5 12h11.5l2-8H6.2"/>',
+  inventario: '<path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/>'
+};
+function pintarMas() {
+  const m = S.mas;
+  if (m.vista === 'gastos') return pintarGastos();
+  if (m.vista === 'insumos') return pintarInsumos();
+  if (m.vista === 'compras') return pintarCompras();
+  if (m.vista === 'inventario') return pintarInventario();
+  const v = $('#vista');
+  v.oninput = v.onchange = null;
+  const item = (k, t, d) => `<button type="button" class="menu-item" data-ir="${k}"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONOS[k]}</svg></span>
+    <span class="txt"><b>${t}</b><span>${d}</span></span><span class="chev">›</span></button>`;
+  const bajos = S.datos.inventario.articulos.filter(a => a.activo && a.bajo).length;
+  v.innerHTML = `<div class="card">
+    ${item('gastos', 'Gastos', 'Gas, aceite, publicidad, permisos…')}
+    ${item('insumos', 'Insumos', 'Carne, pan, queso… con su costo')}
+    ${item('compras', 'Compras', 'Lo que se compra de insumos y reventa')}
+    ${item('inventario', 'Inventario', bajos ? `<span class="tag bad">${bajos} con stock bajo</span>` : 'Cuánto queda y conteos')}
+  </div>
+  <p class="ayuda" style="text-align:center">Las recetas se editan desde cada producto de la Carta.</p>
+  <p class="ayuda" style="text-align:center;margin-top:24px">Datos cargados: ${h(S.datos.ahora || '')}<br>
+    <button type="button" class="btn plano" data-acc="recargar">Recargar datos</button> · <button type="button" class="btn plano" data-acc="salir">Cerrar sesión en este teléfono</button></p>`;
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.ir) { S.mas = { vista: t.dataset.ir, form: null }; pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.acc === 'recargar') cargar();
+    if (t.dataset.acc === 'salir') mostrarModal({ titulo: 'Cerrar sesión', cuerpo: '<p>Se olvidará la clave en este teléfono. Los datos siguen en la planilla.</p>', botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: 'Cerrar sesión', clase: 'peligro', accion: () => salir() }] });
+  };
+}
+/** Navegación común de las subpantallas de Más. */
+function clickComun(t, alMes) {
+  if (t.dataset.acc === 'menu') { S.mas = { vista: null, form: null }; pintar(); window.scrollTo(0, 0); return true; }
+  if (t.dataset.acc === 'cerrarForm') { S.mas.form = null; S.mas.sel = null; pintar(); window.scrollTo(0, 0); return true; }
+  if (t.dataset.mes) { S.mas.mes = moverMes(S.mas.mes, Number(t.dataset.mes)); pintar(); return true; }
+  return false;
+}
+function confirmarBorrar(titulo, texto, accion, datos, msg) {
+  mostrarModal({ titulo, cuerpo: `<p>${texto}</p>`, botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: 'Eliminar', clase: 'peligro', accion: () =>
+    escribir(accion, datos, uuid(), () => { S.mas.form = null; aviso(msg); pintar(); }) }] });
+}
+
+// ───────────────────────────── Gastos ─────────────────────────────
+const CATEGORIAS_GASTO = ['Gas', 'Aceite', 'Publicidad', 'Permisos'];
+function pintarGastos() {
+  const v = $('#vista'), m = S.mas;
+  if (m.form) return pintarFormGasto();
+  v.oninput = v.onchange = null;
+  m.mes = m.mes || mesActual();
+  const lista = S.datos.gastos.filter(g => g.fecha.startsWith(m.mes)).sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const total = lista.reduce((s, g) => s + g.monto, 0);
+  const porCat = {}; lista.forEach(g => { porCat[g.categoria] = (porCat[g.categoria] || 0) + g.monto; });
+  v.innerHTML = `${volverMas}<button type="button" class="btn ancho" data-acc="nuevo" style="margin-bottom:12px">+ Agregar gasto</button>
+    ${navMes(m.mes)}
+    <div class="card"><table class="lineas"><tr class="total"><td>Total del mes</td><td>${pesos(total)}</td></tr>
+      ${Object.entries(porCat).sort((a, b) => b[1] - a[1]).map(([c, x]) => `<tr><td class="m">${h(c)}</td><td class="m">${pesos(x)}</td></tr>`).join('')}</table>
+      ${lista.length ? '' : '<p class="ayuda">Sin gastos registrados este mes.</p>'}</div>
+    ${lista.length ? `<div class="card">${lista.map(g => `<button type="button" class="item-lista" data-gasto="${h(g.id)}"><div><div style="font-weight:600">${h(g.categoria)}</div>
+      <div class="ayuda" style="margin:0">${h(mayus(fechaCorta(g.fecha)))}${g.descripcion ? ' · ' + h(g.descripcion) : ''}</div></div><div class="der">${pesos(g.monto)}</div><span class="chev">›</span></button>`).join('')}</div>` : ''}
+    <div class="aviso info">Aquí va lo que <b>no</b> es insumo: gas, aceite, publicidad, permisos… La carne, el pan o las empanadas van en <b>Compras</b>: su costo ya entra por la receta y no se cuenta dos veces.</div>`;
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || clickComun(t)) return;
+    if (t.dataset.acc === 'nuevo') { m.form = { id: null, fecha: hoy(), categoria: '', descripcion: '', monto: '' }; pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.gasto) { const g = S.datos.gastos.find(x => x.id === t.dataset.gasto); m.form = { id: g.id, fecha: g.fecha, categoria: g.categoria, descripcion: g.descripcion, monto: String(g.monto) }; pintar(); window.scrollTo(0, 0); }
+  };
+}
+function pintarFormGasto() {
+  const v = $('#vista'), f = S.mas.form;
+  const cats = [...new Set([...CATEGORIAS_GASTO, ...S.datos.gastos.map(g => g.categoria)])].sort((a, b) => a.localeCompare(b, 'es'));
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="cerrarForm">‹ Gastos</button>
+    <form class="card" id="fGasto" novalidate><h2>${f.id ? 'Editar gasto' : 'Nuevo gasto'}</h2>
+      <label class="campo">Fecha<input type="date" name="fecha" value="${h(f.fecha)}" max="${h(hoy())}"></label>
+      <label class="campo">Categoría<input name="categoria" value="${h(f.categoria)}" list="listaCatG" maxlength="60" autocomplete="off" placeholder="Gas, Aceite, Publicidad…"></label>
+      <datalist id="listaCatG">${cats.map(c => `<option value="${h(c)}">`).join('')}</datalist>
+      <label class="campo">Descripción <span class="muted" style="font-weight:400">(opcional)</span><input name="descripcion" value="${h(f.descripcion)}" maxlength="200" autocomplete="off"></label>
+      <label class="campo">Monto<div class="pesos-in"><input class="entrada" name="monto" type="text" inputmode="numeric" pattern="[0-9]*" value="${h(f.monto)}" placeholder="0"></div></label>
+      <button class="btn ancho" type="submit" data-guarda>Guardar</button>
+    </form>
+    ${f.id ? '<button type="button" class="btn peligro ancho" data-acc="borrar" data-guarda>Eliminar gasto</button>' : ''}`;
+  v.oninput = (e) => { if (e.target.name === 'monto') { const l = e.target.value.replace(/\D/g, ''); if (l !== e.target.value) e.target.value = l; } sincronizar(f)(e); };
+  v.onchange = sincronizar(f);
+  $('#fGasto').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!f.categoria.trim()) return mostrarModal({ titulo: 'Falta la categoría', cuerpo: '<p>Elige o escribe una categoría (por ejemplo, Gas).</p>', botones: [{ texto: 'Entendido' }] });
+    if (!ent(f.monto)) return mostrarModal({ titulo: 'Falta el monto', cuerpo: '<p>Escribe el monto pagado.</p>', botones: [{ texto: 'Entendido' }] });
+    escribir('guardarGasto', { id: f.id, fecha: f.fecha, categoria: f.categoria.trim(), descripcion: f.descripcion.trim(), monto: ent(f.monto) }, uuid(), () => {
+      S.mas.mes = f.fecha.slice(0, 7); S.mas.form = null; aviso('Gasto guardado'); pintar(); window.scrollTo(0, 0);
+    });
+  });
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || t.closest('form') || clickComun(t)) return;
+    if (t.dataset.acc === 'borrar') confirmarBorrar('Eliminar gasto', `Se eliminará el gasto “${h(f.categoria)}” de ${pesos(ent(f.monto))}.`, 'eliminarGasto', { id: f.id }, 'Gasto eliminado');
+  };
+}
+
+// ───────────────────────────── Insumos ─────────────────────────────
+function pintarInsumos() {
+  const v = $('#vista'), m = S.mas;
+  if (m.form) return pintarFormInsumo();
+  v.oninput = v.onchange = null;
+  const lista = S.datos.insumos.filter(i => m.inactivos || i.activo).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  const nInact = S.datos.insumos.filter(i => !i.activo).length;
+  v.innerHTML = `${volverMas}<button type="button" class="btn ancho" data-acc="nuevo" style="margin-bottom:12px">+ Agregar insumo</button>
+    ${lista.length ? `<div class="card">${lista.map(i => {
+      const c = S.datos.insumosCosto[i.id] || {};
+      return `<button type="button" class="item-lista" data-insumo="${h(i.id)}"><div><div style="font-weight:600">${h(i.nombre)} ${i.activo ? '' : '<span class="tag gris">inactivo</span>'}</div>
+        <div class="ayuda" style="margin:0">en ${BASE[i.unidad]}${Number(i.merma_porcentaje) ? ` · merma ${num(i.merma_porcentaje)}%` : ''}</div></div>
+        <div class="der">${c.costo !== null && c.costo !== undefined ? costoGrande(c.costo, i.unidad) : ''}<div>${etqEstado(c.estado)}</div></div><span class="chev">›</span></button>`;
+    }).join('')}</div>` : `<div class="card"><h2>Sin insumos</h2><p>Los insumos son lo que se usa para preparar: carne molida, pan, cheddar, palta, papas, salsas, cajas… Agrégalos uno a uno; después se usan en las recetas de la Carta.</p></div>`}
+    ${nInact ? `<label class="switch card"><span>Mostrar inactivos (${nInact})</span><input type="checkbox" id="verInact" ${m.inactivos ? 'checked' : ''}></label>` : ''}
+    <div class="aviso info"><b>Costo</b>: sale del promedio de lo pagado en Compras (descontando la merma). Si aún no hay compras se usa el costo de referencia y se marca <b>estimado</b>.</div>`;
+  v.onchange = (e) => { if (e.target.id === 'verInact') { m.inactivos = e.target.checked; pintar(); } };
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || clickComun(t)) return;
+    if (t.dataset.acc === 'nuevo') { m.form = { id: null, nombre: '', unidad: 'g', merma: '', ref: '', min: '', activo: true }; pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.insumo) {
+      const i = S.datos.insumos.find(x => x.id === t.dataset.insumo);
+      m.form = { id: i.id, nombre: i.nombre, unidad: i.unidad, merma: Number(i.merma_porcentaje) ? decTexto(i.merma_porcentaje) : '',
+        ref: i.costo_referencia === '' ? '' : decTexto(Number(i.costo_referencia) * FACTOR[i.unidad]), min: i.stock_minimo === '' ? '' : decTexto(Number(i.stock_minimo) / FACTOR[i.unidad]), activo: i.activo };
+      pintar(); window.scrollTo(0, 0);
+    }
+  };
+}
+function pintarFormInsumo() {
+  const v = $('#vista'), f = S.mas.form;
+  const i = f.id ? S.datos.insumos.find(x => x.id === f.id) : null;
+  const c = f.id ? S.datos.insumosCosto[f.id] || {} : {};
+  const usado = f.id && (S.datos.recetas.some(r => r.insumo_id === f.id) || S.datos.compras.some(x => x.insumo_id === f.id) || S.datos.conteos.some(x => x.insumo_id === f.id));
+  const enRecetas = f.id ? [...new Set(S.datos.recetas.filter(r => r.insumo_id === f.id).map(r => S.idx.prod[r.producto_id]?.nombre).filter(Boolean))] : [];
+  const G = GRANDE[f.unidad];
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="cerrarForm">‹ Insumos</button>
+    <form class="card" id="fIns" novalidate><h2>${f.id ? 'Editar insumo' : 'Nuevo insumo'}</h2>
+      <label class="campo">Nombre<input name="nombre" value="${h(f.nombre)}" maxlength="80" autocomplete="off" placeholder="Ej.: Carne molida"></label>
+      <label class="campo">Se mide en<select name="unidad" ${usado ? 'disabled' : ''}>
+        <option value="g" ${f.unidad === 'g' ? 'selected' : ''}>Gramos (se compra por kg)</option>
+        <option value="ml" ${f.unidad === 'ml' ? 'selected' : ''}>Mililitros (se compra por litro)</option>
+        <option value="unidad" ${f.unidad === 'unidad' ? 'selected' : ''}>Unidades (pan, caja, servilleta…)</option></select></label>
+      ${usado ? '<p class="ayuda" style="margin-top:-6px">La unidad no se puede cambiar porque ya se usa en recetas, compras o conteos.</p>' : ''}
+      <label class="campo">Merma % <span class="muted" style="font-weight:400">(opcional)</span><div class="con-unidad"><input class="entrada" name="merma" type="text" inputmode="decimal" value="${h(f.merma)}" placeholder="0"><span>%</span></div></label>
+      <p class="ayuda" style="margin-top:-6px">Lo que se pierde al limpiar o preparar (por ejemplo, el cuesco y la cáscara de la palta).</p>
+      <label class="campo">Costo de referencia <span class="muted" style="font-weight:400">(opcional)</span><div class="con-unidad pesos-in"><input class="entrada" name="ref" type="text" inputmode="decimal" value="${h(f.ref)}" placeholder="0"><span id="uRef">/ ${G}</span></div></label>
+      <p class="ayuda" style="margin-top:-6px">Se usa solo mientras no haya compras registradas (queda como “estimado”).</p>
+      <label class="campo">Stock mínimo <span class="muted" style="font-weight:400">(opcional)</span><div class="con-unidad"><input class="entrada" name="min" type="text" inputmode="decimal" value="${h(f.min)}" placeholder="—"><span id="uMin">${G}</span></div></label>
+      <p class="ayuda" style="margin-top:-6px">Si el stock teórico baja de esto, el Inventario avisa “stock bajo”.</p>
+      <label class="switch"><span>Activo</span><input type="checkbox" name="activo" ${f.activo ? 'checked' : ''}></label>
+      <button class="btn ancho" type="submit" data-guarda>Guardar</button>
+    </form>
+    ${i ? `<div class="card"><table class="lineas"><tr><td>Costo actual ${etqEstado(c.estado)}</td><td>${c.costo !== null && c.costo !== undefined ? costoGrande(c.costo, i.unidad) : '—'}</td></tr></table>
+      <p class="ayuda">${c.fuente === 'compras' ? 'Promedio ponderado de las compras, descontando la merma.' : c.fuente === 'referencia' ? 'Costo de referencia (sin compras registradas).' : c.fuente === 'compras posteriores' ? 'Promedio de compras registradas con fecha posterior a hoy.' : 'Sin compras ni costo de referencia.'}</p>
+      ${enRecetas.length ? `<p class="ayuda">Se usa en: ${h(enRecetas.join(', '))}.</p>` : ''}</div>
+      <button type="button" class="btn peligro ancho" data-acc="quitar" data-guarda>${usado ? 'Quitar (se desactiva)' : 'Quitar insumo'}</button>` : ''}`;
+  v.oninput = (e) => { const t = e.target; if (['merma', 'ref', 'min'].includes(t.name)) { const l = limpiarDec(t); if (l !== t.value) t.value = l; } sincronizar(f)(e); };
+  v.onchange = (e) => { sincronizar(f)(e); if (e.target.name === 'unidad') { $('#uRef').textContent = '/ ' + GRANDE[f.unidad]; $('#uMin').textContent = GRANDE[f.unidad]; } };
+  $('#fIns').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const err = (m) => mostrarModal({ titulo: 'Revisa el insumo', cuerpo: `<p>${m}</p>`, botones: [{ texto: 'Entendido' }] });
+    if (!f.nombre.trim()) return err('Falta el nombre.');
+    const merma = f.merma === '' ? 0 : dec(f.merma);
+    if (!(merma >= 0 && merma < 100)) return err('La merma debe ser un porcentaje entre 0 y 99.');
+    if (f.ref !== '' && !(dec(f.ref) >= 0)) return err('El costo de referencia no es un número válido.');
+    if (f.min !== '' && !(dec(f.min) >= 0)) return err('El stock mínimo no es un número válido.');
+    const datos = { id: f.id, nombre: f.nombre.trim(), unidad: f.unidad, merma_porcentaje: merma,
+      costo_referencia: f.ref === '' ? '' : Math.round(dec(f.ref) / FACTOR[f.unidad] * 10000) / 10000,
+      stock_minimo: f.min === '' ? '' : aBase(f.min, f.unidad), activo: f.activo };
+    escribir('guardarInsumo', datos, uuid(), () => { S.mas.form = null; aviso('Insumo guardado'); pintar(); window.scrollTo(0, 0); });
+  });
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || t.closest('form') || clickComun(t)) return;
+    if (t.dataset.acc === 'quitar') mostrarModal({ titulo: 'Quitar insumo',
+      cuerpo: usado ? `<p><b>${h(i.nombre)}</b> ya se usa en recetas, compras o conteos: no se borra, se <b>desactiva</b>. Las recetas y costos existentes no cambian.</p>` : `<p>Se eliminará <b>${h(i.nombre)}</b>.</p>`,
+      botones: [{ texto: 'Cancelar', clase: 'sec' }, { texto: usado ? 'Desactivar' : 'Eliminar', clase: 'peligro', accion: () =>
+        escribir('quitarInsumo', { id: f.id }, uuid(), (j) => { S.mas.form = null; aviso(j.resultado?.accion === 'desactivado' ? 'Insumo desactivado' : 'Insumo eliminado'); pintar(); }) }] });
+  };
+}
+
+// ───────────────────────────── Compras ─────────────────────────────
+function pintarCompras() {
+  const v = $('#vista'), m = S.mas;
+  if (m.form) return pintarFormCompra();
+  v.oninput = v.onchange = null;
+  m.mes = m.mes || mesActual();
+  const lista = S.datos.compras.filter(c => c.fecha.startsWith(m.mes)).sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const total = lista.reduce((s, c) => s + c.monto_total, 0);
+  const hayArticulos = articulos(false).length > 0;
+  v.innerHTML = `${volverMas}<button type="button" class="btn ancho" data-acc="nuevo" style="margin-bottom:12px" ${hayArticulos ? '' : 'disabled'}>+ Registrar compra</button>
+    ${hayArticulos ? '' : '<div class="aviso info">Primero agrega los insumos en Más → Insumos (o un producto de tipo reventa en la Carta).</div>'}
+    ${navMes(m.mes)}
+    <div class="card"><table class="lineas"><tr class="total"><td>Total comprado en el mes</td><td>${pesos(total)}</td></tr></table>
+      ${lista.length ? '' : '<p class="ayuda">Sin compras registradas este mes.</p>'}</div>
+    ${lista.length ? `<div class="card">${lista.map(c => {
+      const a = articuloPor(c.insumo_id) || { nombre: '(eliminado)', unidad: 'unidad' };
+      return `<button type="button" class="item-lista" data-compra="${h(c.id)}"><div><div style="font-weight:600">${h(a.nombre)}</div>
+        <div class="ayuda" style="margin:0">${h(mayus(fechaCorta(c.fecha)))} · ${cantGrande(c.cantidad, a.unidad)}${c.proveedor ? ' · ' + h(c.proveedor) : ''}</div></div><div class="der">${pesos(c.monto_total)}</div><span class="chev">›</span></button>`;
+    }).join('')}</div>` : ''}
+    <div class="aviso info">Las compras <b>no son gasto</b>: su costo entra al resultado como costo de lo vendido, a través de las recetas. Una compra grande no aparece como pérdida el día que se compra.</div>`;
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || clickComun(t)) return;
+    if (t.dataset.acc === 'nuevo') { m.form = { id: null, fecha: hoy(), articulo_id: '', cantidad: '', monto: '', proveedor: '', nota: '' }; pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.compra) {
+      const c = S.datos.compras.find(x => x.id === t.dataset.compra); const a = articuloPor(c.insumo_id) || { unidad: 'unidad' };
+      m.form = { id: c.id, fecha: c.fecha, articulo_id: c.insumo_id, cantidad: decTexto(c.cantidad / FACTOR[a.unidad]), monto: String(c.monto_total), proveedor: c.proveedor, nota: c.nota };
+      pintar(); window.scrollTo(0, 0);
+    }
+  };
+}
+function pintarFormCompra() {
+  const v = $('#vista'), f = S.mas.form;
+  const arts = articulos(false);
+  const actual = articuloPor(f.articulo_id);
+  if (actual && !arts.find(a => a.id === actual.id)) arts.push(actual);
+  const provs = [...new Set(S.datos.compras.map(c => c.proveedor).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  const opt = (a) => `<option value="${h(a.id)}" ${a.id === f.articulo_id ? 'selected' : ''}>${h(a.nombre)}</option>`;
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="cerrarForm">‹ Compras</button>
+    <form class="card" id="fCompra" novalidate><h2>${f.id ? 'Editar compra' : 'Nueva compra'}</h2>
+      <label class="campo">Fecha<input type="date" name="fecha" value="${h(f.fecha)}" max="${h(hoy())}"></label>
+      <label class="campo">¿Qué se compró?<select name="articulo_id"><option value="">Elegir…</option>
+        <optgroup label="Insumos">${arts.filter(a => a.tipo === 'insumo').map(opt).join('')}</optgroup>
+        ${arts.some(a => a.tipo === 'reventa') ? `<optgroup label="Productos de reventa">${arts.filter(a => a.tipo === 'reventa').map(opt).join('')}</optgroup>` : ''}</select></label>
+      <label class="campo">Cantidad<div class="con-unidad"><input class="entrada" name="cantidad" type="text" inputmode="decimal" value="${h(f.cantidad)}" placeholder="0"><span id="uCant">${actual ? GRANDE[actual.unidad] : ''}</span></div></label>
+      <label class="campo">Monto pagado (total)<div class="pesos-in"><input class="entrada" name="monto" type="text" inputmode="numeric" pattern="[0-9]*" value="${h(f.monto)}" placeholder="0"></div></label>
+      <p class="ayuda" id="preCompra" style="margin-top:-6px"></p>
+      <label class="campo">Proveedor <span class="muted" style="font-weight:400">(opcional)</span><input name="proveedor" value="${h(f.proveedor)}" list="listaProv" maxlength="80" autocomplete="off"></label>
+      <datalist id="listaProv">${provs.map(p => `<option value="${h(p)}">`).join('')}</datalist>
+      <label class="campo">Nota <span class="muted" style="font-weight:400">(opcional)</span><input name="nota" value="${h(f.nota)}" maxlength="300" autocomplete="off"></label>
+      <button class="btn ancho" type="submit" data-guarda>Guardar</button>
+    </form>
+    ${f.id ? '<button type="button" class="btn peligro ancho" data-acc="borrar" data-guarda>Eliminar compra</button>' : ''}`;
+  const previa = () => {
+    const a = articuloPor(f.articulo_id), c = dec(f.cantidad), mo = ent(f.monto);
+    $('#uCant').textContent = a ? GRANDE[a.unidad] : '';
+    $('#preCompra').textContent = a && c > 0 && mo ? `= ${pesos(mo / c)} por ${GRANDE[a.unidad] === 'u' ? 'unidad' : GRANDE[a.unidad]}${a.tipo === 'insumo' && Number(S.datos.insumos.find(i => i.id === a.id)?.merma_porcentaje) ? ' (antes de la merma)' : ''}` : '';
+  };
+  previa();
+  v.oninput = (e) => {
+    const t = e.target;
+    if (t.name === 'monto') { const l = t.value.replace(/\D/g, ''); if (l !== t.value) t.value = l; }
+    if (t.name === 'cantidad') { const l = limpiarDec(t); if (l !== t.value) t.value = l; }
+    sincronizar(f)(e); previa();
+  };
+  v.onchange = (e) => { sincronizar(f)(e); previa(); };
+  $('#fCompra').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const err = (m) => mostrarModal({ titulo: 'Revisa la compra', cuerpo: `<p>${m}</p>`, botones: [{ texto: 'Entendido' }] });
+    const a = articuloPor(f.articulo_id);
+    if (!a) return err('Elige qué se compró.');
+    if (!(dec(f.cantidad) > 0)) return err('Escribe la cantidad comprada.');
+    if (!ent(f.monto)) return err('Escribe el monto pagado.');
+    escribir('guardarCompra', { id: f.id, fecha: f.fecha, articulo_id: a.id, cantidad: aBase(f.cantidad, a.unidad), monto_total: ent(f.monto), proveedor: f.proveedor.trim(), nota: f.nota.trim() }, uuid(), () => {
+      S.mas.mes = f.fecha.slice(0, 7); S.mas.form = null; aviso('Compra guardada'); pintar(); window.scrollTo(0, 0);
+    });
+  });
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || t.closest('form') || clickComun(t)) return;
+    if (t.dataset.acc === 'borrar') confirmarBorrar('Eliminar compra', `Se eliminará la compra de ${h(articuloPor(f.articulo_id)?.nombre || '')} por ${pesos(ent(f.monto))}. El costo y el inventario se recalculan.`, 'eliminarCompra', { id: f.id }, 'Compra eliminada');
+  };
+}
+
+// ───────────────────────────── Inventario ─────────────────────────────
+function pintarInventario() {
+  const v = $('#vista'), m = S.mas;
+  if (m.form) return pintarConteo();
+  if (m.sel) return pintarArticulo(m.sel);
+  v.oninput = v.onchange = null;
+  const inv = S.datos.inventario;
+  const lista = inv.articulos.filter(a => a.activo || a.stock !== null).sort((a, b) => (b.bajo - a.bajo) || a.nombre.localeCompare(b.nombre, 'es'));
+  v.innerHTML = `${volverMas}<button type="button" class="btn ancho" data-acc="conteo" style="margin-bottom:12px" ${lista.length ? '' : 'disabled'}>Registrar conteo</button>
+    ${inv.productosSinReceta.length ? `<div class="aviso warn">Se vendieron productos sin receta: ${h(inv.productosSinReceta.join(', '))}. Su consumo de insumos no se descuenta, así que el stock teórico puede estar alto.</div>` : ''}
+    ${lista.length ? `<div class="card"><h2>Stock teórico</h2>${lista.map(a => `<button type="button" class="item-lista" data-art="${h(a.id)}"><div><div style="font-weight:600">${h(a.nombre)}</div>
+        <div class="ayuda" style="margin:0">${a.ultimoConteo ? 'Contado el ' + h(fechaCorta(a.ultimoConteo.fecha)) : 'Necesita un conteo inicial'}</div></div>
+        <div class="der">${a.stock === null ? '<span class="tag gris">sin conteo</span>' : `${cantGrande(a.stock, a.unidad)}${a.bajo ? '<div><span class="tag bad">stock bajo</span></div>' : ''}`}</div><span class="chev">›</span></button>`).join('')}</div>`
+      : '<div class="card vacio">Agrega insumos (Más → Insumos) para ver su inventario.</div>'}
+    <div class="aviso info"><b>Stock teórico</b> = último conteo + compras posteriores − lo que se usó según las recetas. No se guarda: se calcula. Cuando cuenten, la diferencia muestra la merma real.</div>`;
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || clickComun(t)) return;
+    if (t.dataset.acc === 'conteo') { m.form = { fecha: hoy(), cant: {} }; pintar(); window.scrollTo(0, 0); }
+    if (t.dataset.art) { m.sel = t.dataset.art; pintar(); window.scrollTo(0, 0); }
+  };
+}
+function pintarArticulo(id) {
+  const v = $('#vista'), a = S.datos.inventario.articulos.find(x => x.id === id);
+  if (!a) { S.mas.sel = null; return pintar(); }
+  v.oninput = v.onchange = null;
+  const cg = (n) => cantGrande(n, a.unidad);
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="cerrarForm">‹ Inventario</button>
+    <div class="card"><h2>${h(a.nombre)}</h2>${a.ultimoConteo ? `<table class="lineas">
+      <tr><td>Último conteo (${h(fechaCorta(a.ultimoConteo.fecha))})</td><td>${cg(a.ultimoConteo.cantidad)}</td></tr>
+      <tr><td>Compras posteriores</td><td>+ ${cg(a.compras)}</td></tr>
+      <tr><td>Consumo según ventas${a.tipo === 'reventa' ? '' : ' y recetas'}</td><td>− ${cg(a.consumo)}</td></tr>
+      <tr class="total"><td>Stock teórico</td><td>${cg(a.stock)}</td></tr>
+      ${a.stockMinimo !== '' && a.stockMinimo !== null ? `<tr><td class="m">Stock mínimo</td><td class="m">${cg(a.stockMinimo)}</td></tr>` : ''}</table>
+      ${a.bajo ? '<div class="aviso bad">Stock bajo: está en el mínimo o por debajo.</div>' : ''}`
+      : '<p>Sin conteo: registra un conteo inicial para calcular su stock.</p>'}</div>
+    ${a.historial.length ? `<div class="card"><h2>Conteos</h2><table class="rank"><thead><tr><th>Fecha</th><th class="n">Contado</th><th class="n">Teórico</th><th class="n">Diferencia</th><th></th></tr></thead><tbody>
+      ${a.historial.slice().reverse().map(x => `<tr><td>${h(fechaCorta(x.fecha))}</td><td class="n">${cg(x.contado)}</td><td class="n muted">${x.teorico === null ? '—' : cg(x.teorico)}</td>
+        <td class="n ${x.diferencia < 0 ? 'baja' : ''}">${x.diferencia === null ? '—' : (x.diferencia > 0 ? '+' : '') + cg(x.diferencia)}</td>
+        <td class="n"><button type="button" class="btn plano" style="min-height:32px;padding:2px 6px;color:var(--bad)" data-borrarconteo="${h(x.id)}" aria-label="Eliminar conteo">×</button></td></tr>`).join('')}
+      </tbody></table><p class="ayuda">Diferencia = contado − teórico. Si es negativa, se usó o perdió más de lo que dicen las recetas (merma real).</p></div>` : ''}`;
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || clickComun(t)) return;
+    if (t.dataset.borrarconteo) confirmarBorrar('Eliminar conteo', 'Se eliminará este conteo. El stock teórico se recalcula con los conteos que queden.', 'eliminarConteo', { id: t.dataset.borrarconteo }, 'Conteo eliminado');
+  };
+}
+function pintarConteo() {
+  const v = $('#vista'), f = S.mas.form;
+  const arts = S.datos.inventario.articulos.filter(a => a.activo).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  v.innerHTML = `<button type="button" class="btn plano volver" data-acc="cerrarForm">‹ Inventario</button>
+    <div class="card"><h2>Registrar conteo</h2>
+      <label class="campo">Fecha del conteo<input type="date" id="cFecha" value="${h(f.fecha)}" max="${h(hoy())}"></label>
+      <p class="ayuda" style="margin-top:-6px">Cuenten <b>antes de abrir</b> y después de anotar las compras de ese día. Dejen en blanco lo que no contaron. La primera vez sirve como conteo inicial.</p>
+      ${arts.map(a => `<div class="prod"><div class="prod-info"><div class="nombre">${h(a.nombre)}</div><div class="sub">${a.stock === null ? 'sin conteo' : 'teórico: ' + cantGrande(a.stock, a.unidad)}</div></div>
+        <div class="con-unidad" style="width:130px"><input class="entrada" style="margin-top:0" type="text" inputmode="decimal" data-cont="${h(a.id)}" value="${h(f.cant[a.id] || '')}" placeholder="—" aria-label="Cantidad contada de ${h(a.nombre)}"><span>${GRANDE[a.unidad]}</span></div></div>`).join('')}
+      <button type="button" class="btn ancho" data-acc="guardarConteo" data-guarda style="margin-top:12px">Guardar conteo</button></div>`;
+  v.oninput = (e) => { const t = e.target; if (t.dataset.cont) { const l = limpiarDec(t); if (l !== t.value) t.value = l; f.cant[t.dataset.cont] = l; } };
+  v.onchange = (e) => { if (e.target.id === 'cFecha') f.fecha = e.target.value; };
+  v.onclick = (e) => {
+    const t = e.target.closest('button'); if (!t || clickComun(t)) return;
+    if (t.dataset.acc === 'guardarConteo') {
+      const items = arts.filter(a => f.cant[a.id] !== undefined && f.cant[a.id] !== '').map(a => ({ articulo_id: a.id, cantidad: aBase(f.cant[a.id], a.unidad) }));
+      if (!items.length) return mostrarModal({ titulo: 'Conteo vacío', cuerpo: '<p>Escribe al menos una cantidad contada.</p>', botones: [{ texto: 'Entendido' }] });
+      if (items.some(x => isNaN(x.cantidad))) return mostrarModal({ titulo: 'Revisa el conteo', cuerpo: '<p>Hay una cantidad que no es un número.</p>', botones: [{ texto: 'Entendido' }] });
+      escribir('guardarConteos', { fecha: f.fecha, items }, uuid(), () => { S.mas.form = null; aviso(`Conteo guardado (${items.length})`); pintar(); window.scrollTo(0, 0); });
+    }
   };
 }
 
